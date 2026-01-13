@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: myeconocoach
+    restart: always
+    ports:
+      - "5431:5432"
+    environment:
+      POSTGRES_DB: myeconocoach
+      POSTGRES_USER: econ_user
+      POSTGRES_PASSWORD: econ_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U econ_user -d myeconocoach"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
