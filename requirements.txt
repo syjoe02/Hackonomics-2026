@@ -1,0 +1,11 @@
+Django
+djangorestframework
+django-allauth
+django-cors-headers
+"psycopg[binary]"
+requests
+django-environ
+pyJWT
+cryptography
+drf-spectacular
+python-dateutil
