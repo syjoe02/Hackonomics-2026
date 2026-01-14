@@ -9,3 +9,5 @@ pyJWT
 cryptography
 drf-spectacular
 python-dateutil
+redis
+django-redis
