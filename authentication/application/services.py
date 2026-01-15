@@ -2,16 +2,26 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 
+from authentication.adapters.django.auth_service import CentralAuthAdapter
+
 class LoginService:
-    def login(self, request, email: str, password: str) -> User:
-        user = authenticate(
-            request,
-            username=email,
-            password=password,
-        )
+    def __init__(self):
+        self.central_auth = CentralAuthAdapter()
+
+    def login(self, email: str, password: str, device_id: str, remember_me: bool) -> dict:
+        user = authenticate(username=email, password=password)
         if user is None:
             raise ValueError("Invalid credentials")
-        return user
+        try:
+            tokens = self.central_auth.login(
+                user_id=str(user.id),
+                device_id=device_id,
+                remember_me=remember_me,
+            )
+        except Exception as e:
+            raise ValueError(f"Central-Auth connection failed: {str(e)}")
+        
+        return tokens
 
 class SignupService:
     def signup(self, email: str, username: str, password: str) -> User:

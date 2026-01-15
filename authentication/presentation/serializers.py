@@ -4,10 +4,11 @@ from rest_framework import serializers
 class LoginRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(max_length=128)
+    device_id = serializers.CharField(max_length=128)
+    remember_me = serializers.BooleanField(default=False)
 
 class LoginResponseSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    email = serializers.EmailField()
+    access_token = serializers.CharField()
 
 class SignupRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()

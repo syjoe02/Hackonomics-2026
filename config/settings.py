@@ -16,6 +16,12 @@ import environ
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Env
+env = environ.Env()
+environ.Env.read_env(BASE_DIR / ".env")
+
+ENV = env("DJANGO_ENV", default="local")
+IS_PRODUCTION = ENV == "prod"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -24,7 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-cimnt!tid54x8l+$sz+#ev$opsw^dz)hy)qg-s%j82&u_dm4a1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = not IS_PRODUCTION
 
 ALLOWED_HOSTS = []
 
@@ -117,12 +123,12 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:3000",
 ]
 
+## httpOnly + samesite for refreshToken 
+SESSION_COOKIE_SECURE = IS_PRODUCTION
+CSRF_COOKIE_SECURE = IS_PRODUCTION
 
-SESSION_COOKIE_SAMESITE = "Lax"
-CSRF_COOKIE_SAMESITE = "Lax"
-
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SAMESITE = "Strict" if IS_PRODUCTION else "Lax"
+CSRF_COOKIE_SAMESITE = "Strict" if IS_PRODUCTION else "Lax"
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
@@ -146,28 +152,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Redis
-REDIS_HOST = "127.0.0.1"
-REDIS_PORT = 6379
-REDIS_DB = 0
+# Central-Auth
+CENTRAL_AUTH_URL = env(
+    "CENTRAL_AUTH_URL",
+    default="http://localhost:8081",
+)
 
-REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
+CENTRAL_AUTH_SERVICE_KEY = env(
+    "CENTRAL_AUTH_SERVICE_KEY",
+    default="super-secret-service-key9898",
+)
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": REDIS_URL,
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    }
-}
+CENTRAL_AUTH_TIMEOUT = env.int(
+    "CENTRAL_AUTH_TIMEOUT",
+    default=5,
+)
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
-env = environ.Env()
-environ.Env.read_env(BASE_DIR / ".env")
 
 DATABASES = {
     'default': {
