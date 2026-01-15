@@ -3,7 +3,6 @@ from django.conf import settings
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 
@@ -49,7 +48,54 @@ class LoginAPIView(GenericAPIView):
             path="/"
         )
 
-        return response    
+        return response
+
+class OAuthLoginAPIView(GenericAPIView):
+    serializer_class = EmptySerializer
+    
+    def post(self, request):
+        provider = request.data["provider"]
+        id_token = request.data["id_token"]
+        device_id = request.data["device_id"]
+        remember_me = request.data.get("remember_me", False)
+
+        try:
+            res = request.post(
+                f"{settings.CENTRAL_AUTH_URL}/auth/oauth/login",
+                headers={
+                    "X-Service-Key": settings.CENTRAL_AUTH_SERVICE_KEY,
+                },
+                json={
+                    "provider": provider,
+                    "id_token": id_token,
+                    "device_id": device_id,
+                    "remember_me": remember_me,
+                },
+                timeout=settings.CENTRAL_AUTH_TIMEOUT,
+            )
+        except requests.RequestException:
+            return Response({"error": "central auth unavailable"}, status=502)
+
+        if res.status_code != 200:
+            return Response({"error": "oauth login failed"}, status=401)
+        
+        tokens = res.json()
+        response = Response(
+            {"access_token": tokens["access_token"]},
+            status=200,
+        )
+
+        response.set_cookie(
+            "refresh_token",
+            tokens["refresh_token"],
+            httponly=True,
+            secure=settings.IS_PRODUCTION,
+            samesite="Strict" if settings.IS_PRODUCTION else "Lax",
+            max_age=60 * 60 * 24 * (30 if remember_me else 7),
+            path="/",
+        )
+
+        return response
 
 class LogoutAPIView(GenericAPIView):
     serializer_class = EmptySerializer
