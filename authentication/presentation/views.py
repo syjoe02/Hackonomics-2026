@@ -46,6 +46,7 @@ class LoginAPIView(GenericAPIView):
             secure=settings.IS_PRODUCTION,
             samesite="Strict" if settings.IS_PRODUCTION else "Lax",
             max_age=60 * 60 * 24 * (30 if serializer.validated_data.get("remember_me") else 7),
+            path="/"
         )
 
         return response    
@@ -72,8 +73,8 @@ class LogoutAPIView(GenericAPIView):
         response = Response(status=status.HTTP_204_NO_CONTENT)
         response.delete_cookie(
             "refresh_token",
-            secure=settings.IS_PRODUCTION,
             samesite="Strict" if settings.IS_PRODUCTION else "Lax",
+            path="/"
         )
         return response
     
@@ -87,14 +88,13 @@ class SignupAPIView(GenericAPIView):
         try:
             user = SignupService().signup(
                 email=serializer.validated_data["email"],
-                username=serializer.validated_data["username"],
                 password=serializer.validated_data["password"],
             )
         except ValueError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(
-            {"id": user.id, "email": user.email, "username": user.username,},
+            {"id": user.id, "email": user.email,},
             status=status.HTTP_201_CREATED,
         )
 

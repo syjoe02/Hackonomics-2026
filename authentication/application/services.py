@@ -24,11 +24,11 @@ class LoginService:
         return tokens
 
 class SignupService:
-    def signup(self, email: str, username: str, password: str) -> User:
+    def signup(self, email: str, password: str) -> User:
         try:
             user = User.objects.create_user(
+                username=email,
                 email=email,
-                username=username,
                 password=password,
             )
         except IntegrityError:

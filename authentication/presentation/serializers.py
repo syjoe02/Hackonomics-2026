@@ -12,7 +12,6 @@ class LoginResponseSerializer(serializers.Serializer):
 
 class SignupRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    username = serializers.CharField(max_length=50)
     password = serializers.CharField(write_only=True, min_length=8)
     confirm_password = serializers.CharField(write_only=True, min_length=8)
 
