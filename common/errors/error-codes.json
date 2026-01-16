@@ -1,0 +1,167 @@
+{
+    "INVALID_PARAMETER": {
+        "status": 400,
+        "code": "InvalidParameter",
+        "message": "Invalid request parameter"
+    },
+    "VALIDATION_FAILED": {
+        "status": 400,
+        "code": "ValidationFailed",
+        "message": "Validation failed"
+    },
+    "MISSING_REQUIRED_FIELD": {
+        "status": 400,
+        "code": "MissingRequiredField",
+        "message": "Required field is missing"
+    },
+    "METHOD_NOT_ALLOWED": {
+        "status": 405,
+        "code": "MethodNotAllowed",
+        "message": "HTTP method not allowed"
+    },
+    "UNSUPPORTED_MEDIA_TYPE": {
+        "status": 415,
+        "code": "UnsupportedMediaType",
+        "message": "Unsupported media type"
+    },
+    "INVALID_CREDENTIALS": {
+        "status": 401,
+        "code": "InvalidCredentials",
+        "message": "Invalid email or password"
+    },
+    "UNAUTHORIZED": {
+        "status": 401,
+        "code": "Unauthorized",
+        "message": "Unauthorized"
+    },
+    "FORBIDDEN": {
+        "status": 403,
+        "code": "Forbidden",
+        "message": "Access is forbidden"
+    },
+    "ACCESS_DENIED": {
+        "status": 403,
+        "code": "AccessDenied",
+        "message": "You do not have permission"
+    },
+    "TOKEN_INVALID": {
+        "status": 401,
+        "code": "InvalidToken",
+        "message": "Invalid token"
+    },
+    "TOKEN_EXPIRED": {
+        "status": 401,
+        "code": "TokenExpired",
+        "message": "Token expired"
+    },
+    "REFRESH_TOKEN_MISSING": {
+        "status": 401,
+        "code": "RefreshTokenMissing",
+        "message": "Refresh token is missing"
+    },
+    "REFRESH_TOKEN_INVALID": {
+        "status": 401,
+        "code": "RefreshTokenInvalid",
+        "message": "Invalid refresh token"
+    },
+    "DATA_NOT_FOUND": {
+        "status": 404,
+        "code": "DataNotFound",
+        "message": "Requested resource not found"
+    },
+    "DUPLICATE_ENTRY": {
+        "status": 409,
+        "code": "DuplicateEntry",
+        "message": "Resource already exists"
+    },
+    "DATA_INTEGRITY_VIOLATION": {
+        "status": 409,
+        "code": "DataIntegrityViolation",
+        "message": "Data integrity violation"
+    },
+    "USER_NOT_FOUND": {
+        "status": 404,
+        "code": "UserNotFound",
+        "message": "User not found"
+    },
+    "USER_BLOCKED": {
+        "status": 403,
+        "code": "UserBlocked",
+        "message": "User is blocked"
+    },
+    "USER_SUSPENDED": {
+        "status": 403,
+        "code": "UserSuspended",
+        "message": "User is suspended"
+    },
+    "USER_DELETED": {
+        "status": 403,
+        "code": "UserDeleted",
+        "message": "User account is deleted"
+    },
+    "PASSWORD_TOO_SHORT": {
+        "status": 400,
+        "code": "PasswordTooShort",
+        "message": "Password is too short"
+    },
+    "PASSWORD_POLICY_VIOLATION": {
+        "status": 400,
+        "code": "PasswordPolicyViolation",
+        "message": "Password does not satisfy security policy"
+    },
+    "EXTERNAL_API_FAILED": {
+        "status": 502,
+        "code": "ExternalApiFailed",
+        "message": "External service failed"
+    },
+    "TIMEOUT": {
+        "status": 504,
+        "code": "Timeout",
+        "message": "External service timeout"
+    },
+    "SERVICE_UNAVAILABLE": {
+        "status": 503,
+        "code": "ServiceUnavailable",
+        "message": "Service temporarily unavailable"
+    },
+    "GOOGLE_AUTH_CODE_MISSING": {
+        "status": 400,
+        "code": "GoogleAuthCodeMissing",
+        "message": "Google authorization code is missing"
+    },
+    "GOOGLE_AUTH_FAILED": {
+        "status": 401,
+        "code": "GoogleAuthFailed",
+        "message": "Google authentication failed"
+    },
+    "GOOGLE_USERINFO_FAILED": {
+        "status": 502,
+        "code": "GoogleUserinfoFailed",
+        "message": "Failed to fetch user info from Google"
+    },
+    "FILE_UPLOAD_FAILED": {
+        "status": 500,
+        "code": "FileUploadFailed",
+        "message": "File upload failed"
+    },
+    "FILE_NOT_FOUND": {
+        "status": 404,
+        "code": "FileNotFound",
+        "message": "File not found"
+    },
+    "FILE_TOO_LARGE": {
+        "status": 413,
+        "code": "FileTooLarge",
+        "message": "Uploaded file is too large"
+    },
+    "INTERNAL_ERROR": {
+        "status": 500,
+        "code": "InternalError",
+        "message": "Internal server error"
+    },
+    "NOT_IMPLEMENTED": {
+        "status": 501,
+        "code": "NotImplemented",
+        "message": "Feature not implemented"
+    }
+}

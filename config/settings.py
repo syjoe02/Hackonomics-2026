@@ -116,6 +116,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
     ],
+    "EXCEPTION_HANDLER": "common.errors.handlers.global_exception_handler",
 }
 
 SPECTACULAR_SETTINGS = {
