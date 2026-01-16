@@ -1,11 +1,10 @@
-import requests
+
 from django.conf import settings
 from django.shortcuts import redirect
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 
@@ -14,7 +13,7 @@ from authentication.presentation.serializers import (
     SignupRequestSerializer,
 )
 from authentication.adapters.django.google_oauth import GoogleOAuthAdapter
-from authentication.application.services import LoginService, SignupService
+from authentication.application.services.authentication_service import AuthenticationService
 from common.EmptySerializer import EmptySerializer
 from common.errors.error_codes import ErrorCode
 from common.errors.exceptions import BusinessException
@@ -26,24 +25,22 @@ class LoginAPIView(GenericAPIView):
         serializer = LoginRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        tokens = LoginService().login(
+        auth_service = AuthenticationService()
+        tokens = auth_service.login(
             email=serializer.validated_data["email"],
             password=serializer.validated_data["password"],
             device_id=serializer.validated_data["device_id"],
             remember_me=serializer.validated_data.get("remember_me", False),
         )
 
-        access_token = tokens["access_token"]
-        refresh_token = tokens["refresh_token"]
-
         response = Response(
-            {"access_token": access_token},
+            {"access_token": tokens["access_token"]},
             status=status.HTTP_200_OK
         )
 
         response.set_cookie(
             key="refresh_token",
-            value=refresh_token,
+            value=tokens["refresh_token"],
             httponly=True,
             secure=settings.IS_PRODUCTION,
             samesite="Strict" if settings.IS_PRODUCTION else "Lax",
@@ -63,19 +60,9 @@ class GoogleCallbackAPIView(APIView):
         if not code:
             raise BusinessException(ErrorCode.GOOGLE_AUTH_CODE_MISSING)
 
-        adapter = GoogleOAuthAdapter()
-        # google code -> token
-        try:
-            token_data = adapter.exchange_code_for_token(code)
-            userinfo = adapter.get_userinfo(token_data["access_token"])
-        except requests.RequestException:
-            raise BusinessException(ErrorCode.EXTERNAL_API_FAILED)
-        
-        email = userinfo.get("email")
-        if not email:
-            raise BusinessException(ErrorCode.INVALID_PARAMETER)
         # login
-        tokens = LoginService().googleLogin(email)
+        auth_service = AuthenticationService()
+        tokens = auth_service.google_login(code)
         # refresh token -> stored in Cookie
         response = redirect(f"{settings.FRONTEND_URL}/oauth/callback")
         response.set_cookie(
@@ -94,18 +81,8 @@ class LogoutAPIView(GenericAPIView):
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token")
 
-        if refresh_token:
-            try:
-                requests.post(
-                    f"{settings.CENTRAL_AUTH_URL}/auth/logout",
-                    headers={
-                        "X-Service-Key": settings.CENTRAL_AUTH_SERVICE_KEY,
-                        "Authorization": f"Bearer {refresh_token}",
-                    },
-                    timeout=settings.CENTRAL_AUTH_TIMEOUT,
-                )
-            except requests.RequestException:
-                pass
+        auth_service = AuthenticationService()
+        auth_service.logout(refresh_token)
 
         response = Response(status=status.HTTP_204_NO_CONTENT)
         response.delete_cookie(
@@ -122,7 +99,8 @@ class SignupAPIView(GenericAPIView):
         serializer = SignupRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = SignupService().signup(
+        auth_service = AuthenticationService()
+        user = auth_service.signup(
             email=serializer.validated_data["email"],
             password=serializer.validated_data["password"],
         )
@@ -136,27 +114,12 @@ class RefreshAPIView(GenericAPIView):
 
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token")
-        if not refresh_token:
-            raise BusinessException(ErrorCode.REFRESH_TOKEN_MISSING)
 
-        try:
-            res = requests.post(
-                f"{settings.CENTRAL_AUTH_URL}/auth/refresh",
-                headers={
-                    "X-Service-Key": settings.CENTRAL_AUTH_SERVICE_KEY,
-                    "Authorization": f"Bearer {refresh_token}",
-                },
-                timeout=settings.CENTRAL_AUTH_TIMEOUT,
-            )
-        except requests.RequestException:
-            raise BusinessException(ErrorCode.EXTERNAL_API_FAILED)
+        auth_service = AuthenticationService()
+        tokens = auth_service.refresh(refresh_token)
 
-        if res.status_code != 200:
-            raise BusinessException(ErrorCode.REFRESH_TOKEN_INVALID)
-
-        data = res.json()
         return Response(
-            {"access_token": data["access_token"]}, 
+            {"access_token": tokens["access_token"]},
             status=status.HTTP_200_OK
         )
 
@@ -172,23 +135,9 @@ class MeAPIView(GenericAPIView):
 
     def get(self, request):
         access_token = request.headers.get("Authorization")
-        if not access_token:
-            raise BusinessException(ErrorCode.UNAUTHORIZED)
 
-        try:
-            res = requests.post(
-                f"{settings.CENTRAL_AUTH_URL}/auth/verify",
-                headers={
-                    "X-Service-Key": settings.CENTRAL_AUTH_SERVICE_KEY,
-                    "Authorization": access_token,
-                },
-                timeout=settings.CENTRAL_AUTH_TIMEOUT,
-            )
-        except requests.RequestException:
-            raise BusinessException(ErrorCode.EXTERNAL_API_FAILED)
+        auth_service = AuthenticationService()
+        user_info = auth_service.verify(access_token)
 
-        if res.status_code != 200:
-            raise BusinessException(ErrorCode.TOKEN_INVALID)
-
-        return Response(res.json(), status=status.HTTP_200_OK)
+        return Response(user_info, status=status.HTTP_200_OK)
         

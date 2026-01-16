@@ -41,3 +41,18 @@ class CentralAuthAdapter:
             },
             timeout=settings.CENTRAL_AUTH_TIMEOUT,
         )
+
+    def verify(self, access_token: str):
+        res = requests.post(
+            f"{settings.CENTRAL_AUTH_URL}/auth/verify",
+                headers={
+                    "X-Service-Key": settings.CENTRAL_AUTH_SERVICE_KEY,
+                    "Authorization": access_token,
+                },
+                timeout=settings.CENTRAL_AUTH_TIMEOUT,
+        )
+
+        if res.status_code != 200:
+            raise Exception("Invalid token")
+
+        return res.json()
