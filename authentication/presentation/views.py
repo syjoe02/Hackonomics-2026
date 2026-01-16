@@ -1,9 +1,11 @@
 import requests
 from django.conf import settings
+from django.shortcuts import redirect
 from rest_framework.generics import GenericAPIView
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 
@@ -11,6 +13,7 @@ from authentication.presentation.serializers import (
     LoginRequestSerializer,
     SignupRequestSerializer,
 )
+from authentication.adapters.django.google_oauth import GoogleOAuthAdapter
 from common.EmptySerializer import EmptySerializer
 from authentication.application.services import LoginService, SignupService
 
@@ -49,7 +52,25 @@ class LoginAPIView(GenericAPIView):
             path="/"
         )
 
-        return response    
+        return response
+
+class GoogleLoginAPIView(APIView):
+    def get(self, request):
+        adapter = GoogleOAuthAdapter()
+        url = adapter.build_login_url()
+        return redirect(url)
+    
+class GoogleCallbaackAPIView(APIView):
+    def get(self, request):
+        code = request.GET.get("code")
+        if not code:
+            return Response({"error": "Missing code"}, status=400)
+
+        adapter = GoogleOAuthAdapter()
+        token_data = adapter.exchange_code_for_token(code)
+
+        access_token = token_data["access_token"]
+        userinfo = adapter.get_userinfo(access_token)
 
 class LogoutAPIView(GenericAPIView):
     serializer_class = EmptySerializer
