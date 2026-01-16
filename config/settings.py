@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Env
 env = environ.Env()
-environ.Env.read_env(BASE_DIR / ".env")
+environ.Env.read_env(BASE_DIR / "env" / ".env")
 
 ENV = env("DJANGO_ENV", default="local")
 IS_PRODUCTION = ENV == "prod"
@@ -32,8 +32,12 @@ SECRET_KEY = 'django-insecure-cimnt!tid54x8l+$sz+#ev$opsw^dz)hy)qg-s%j82&u_dm4a1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = not IS_PRODUCTION
 
-ALLOWED_HOSTS = []
+FRONTEND_URL = env(
+    "FRONTEND_URL",
+    default="http://localhost:5173"
+)
 
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -96,6 +100,14 @@ ACCOUNT_SIGNUP_FIELDS = [
 ]
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
+# Google
+GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET")
+GOOGLE_REDIRECT_URI = env(
+    "GOOGLE_REDIRECT_URI",
+    default="http://localhost:8000/api/auth/google/callback/"
+)
+
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -104,6 +116,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
     ],
+    "EXCEPTION_HANDLER": "common.errors.handlers.global_exception_handler",
 }
 
 SPECTACULAR_SETTINGS = {
@@ -114,13 +127,13 @@ SPECTACULAR_SETTINGS = {
 # React
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
 
 ## httpOnly + samesite for refreshToken 

@@ -1,6 +1,8 @@
-import requests
+
 from django.conf import settings
+from django.shortcuts import redirect
 from rest_framework.generics import GenericAPIView
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -10,8 +12,11 @@ from authentication.presentation.serializers import (
     LoginRequestSerializer,
     SignupRequestSerializer,
 )
+from authentication.adapters.django.google_oauth import GoogleOAuthAdapter
+from authentication.application.services.authentication_service import AuthenticationService
 from common.EmptySerializer import EmptySerializer
-from authentication.application.services import LoginService, SignupService
+from common.errors.error_codes import ErrorCode
+from common.errors.exceptions import BusinessException
 
 class LoginAPIView(GenericAPIView):
     serializer_class = LoginRequestSerializer
@@ -20,81 +25,54 @@ class LoginAPIView(GenericAPIView):
         serializer = LoginRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        try:
-            tokens = LoginService().login(
-                email=serializer.validated_data["email"],
-                password=serializer.validated_data["password"],
-                device_id=serializer.validated_data["device_id"],
-                remember_me=serializer.validated_data.get("remember_me", False),
-            )
-        except ValueError as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-        access_token = tokens["access_token"]
-        refresh_token = tokens["refresh_token"]
+        auth_service = AuthenticationService()
+        tokens = auth_service.login(
+            email=serializer.validated_data["email"],
+            password=serializer.validated_data["password"],
+            device_id=serializer.validated_data["device_id"],
+            remember_me=serializer.validated_data.get("remember_me", False),
+        )
 
         response = Response(
-            {"access_token": access_token},
-            status=status.HTTP_200_OK,
+            {"access_token": tokens["access_token"]},
+            status=status.HTTP_200_OK
         )
 
         response.set_cookie(
             key="refresh_token",
-            value=refresh_token,
+            value=tokens["refresh_token"],
             httponly=True,
             secure=settings.IS_PRODUCTION,
             samesite="Strict" if settings.IS_PRODUCTION else "Lax",
             max_age=60 * 60 * 24 * (30 if serializer.validated_data.get("remember_me") else 7),
             path="/"
         )
-
         return response
 
-class OAuthLoginAPIView(GenericAPIView):
-    serializer_class = EmptySerializer
+class GoogleLoginAPIView(APIView):
+    def get(self, request):
+        adapter = GoogleOAuthAdapter()
+        return redirect(adapter.build_login_url())
     
-    def post(self, request):
-        provider = request.data["provider"]
-        id_token = request.data["id_token"]
-        device_id = request.data["device_id"]
-        remember_me = request.data.get("remember_me", False)
+class GoogleCallbackAPIView(APIView):
+    def get(self, request):
+        code = request.GET.get("code")
+        if not code:
+            raise BusinessException(ErrorCode.GOOGLE_AUTH_CODE_MISSING)
 
-        try:
-            res = request.post(
-                f"{settings.CENTRAL_AUTH_URL}/auth/oauth/login",
-                headers={
-                    "X-Service-Key": settings.CENTRAL_AUTH_SERVICE_KEY,
-                },
-                json={
-                    "provider": provider,
-                    "id_token": id_token,
-                    "device_id": device_id,
-                    "remember_me": remember_me,
-                },
-                timeout=settings.CENTRAL_AUTH_TIMEOUT,
-            )
-        except requests.RequestException:
-            return Response({"error": "central auth unavailable"}, status=502)
-
-        if res.status_code != 200:
-            return Response({"error": "oauth login failed"}, status=401)
-        
-        tokens = res.json()
-        response = Response(
-            {"access_token": tokens["access_token"]},
-            status=200,
-        )
-
+        # login
+        auth_service = AuthenticationService()
+        tokens = auth_service.google_login(code)
+        # refresh token -> stored in Cookie
+        response = redirect(f"{settings.FRONTEND_URL}/oauth/callback")
         response.set_cookie(
-            "refresh_token",
-            tokens["refresh_token"],
+            key="refresh_token",
+            value=tokens["refresh_token"],
             httponly=True,
             secure=settings.IS_PRODUCTION,
             samesite="Strict" if settings.IS_PRODUCTION else "Lax",
-            max_age=60 * 60 * 24 * (30 if remember_me else 7),
             path="/",
         )
-
         return response
 
 class LogoutAPIView(GenericAPIView):
@@ -103,18 +81,8 @@ class LogoutAPIView(GenericAPIView):
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token")
 
-        if refresh_token:
-            try:
-                requests.post(
-                    f"{settings.CENTRAL_AUTH_URL}/auth/logout",
-                    headers={
-                        "X-Service-Key": settings.CENTRAL_AUTH_SERVICE_KEY,
-                        "Authorization": f"Bearer {refresh_token}",
-                    },
-                    timeout=settings.CENTRAL_AUTH_TIMEOUT,
-                )
-            except requests.RequestException:
-                pass
+        auth_service = AuthenticationService()
+        auth_service.logout(refresh_token)
 
         response = Response(status=status.HTTP_204_NO_CONTENT)
         response.delete_cookie(
@@ -131,14 +99,11 @@ class SignupAPIView(GenericAPIView):
         serializer = SignupRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        try:
-            user = SignupService().signup(
-                email=serializer.validated_data["email"],
-                password=serializer.validated_data["password"],
-            )
-        except ValueError as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
+        auth_service = AuthenticationService()
+        user = auth_service.signup(
+            email=serializer.validated_data["email"],
+            password=serializer.validated_data["password"],
+        )
         return Response(
             {"id": user.id, "email": user.email,},
             status=status.HTTP_201_CREATED,
@@ -149,27 +114,14 @@ class RefreshAPIView(GenericAPIView):
 
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token")
-        if not refresh_token:
-            return Response({"error": "no refresh token"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        try:
-            res = requests.post(
-                f"{settings.CENTRAL_AUTH_URL}/auth/refresh",
-                headers={
-                    "X-Service-Key": settings.CENTRAL_AUTH_SERVICE_KEY,
-                    "Authorization": f"Bearer {refresh_token}",
-                },
-                timeout=settings.CENTRAL_AUTH_TIMEOUT,
-            )
-        except requests.RequestException:
-            return Response({"error": "central auth unavailable"}, status=502)
+        auth_service = AuthenticationService()
+        tokens = auth_service.refresh(refresh_token)
 
-        if res.status_code != 200:
-            return Response({"error": "refresh failed"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        data = res.json()
-        return Response({"access_token": data["access_token"]}, status=200)
-
+        return Response(
+            {"access_token": tokens["access_token"]},
+            status=status.HTTP_200_OK
+        )
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class CsrfAPIView(GenericAPIView):
@@ -179,25 +131,13 @@ class CsrfAPIView(GenericAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 class MeAPIView(GenericAPIView):
+    serializer_class = EmptySerializer
+
     def get(self, request):
         access_token = request.headers.get("Authorization")
-        if not access_token:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-        try:
-            res = requests.post(
-                f"{settings.CENTRAL_AUTH_URL}/auth/verify",
-                headers={
-                    "X-Service-Key": settings.CENTRAL_AUTH_SERVICE_KEY,
-                    "Authorization": access_token,
-                },
-                timeout=settings.CENTRAL_AUTH_TIMEOUT,
-            )
-        except requests.RequestException:
-            return Response({"error": "central auth unavailable"}, status=502)
+        auth_service = AuthenticationService()
+        user_info = auth_service.verify(access_token)
 
-        if res.status_code != 200:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-
-        return Response(res.json(), status=200)
+        return Response(user_info, status=status.HTTP_200_OK)
         
