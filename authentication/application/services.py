@@ -22,6 +22,23 @@ class LoginService:
             raise ValueError(f"Central-Auth connection failed: {str(e)}")
         
         return tokens
+    
+    def googleLogin(self, email: str) -> dict:
+        user, _ = User.objects.get_or_create(
+            username=email,
+            defaults={"email": email}
+        )
+
+        try:
+            tokens = self.central_auth.login(
+                user_id=str(user.id),
+                device_id="google-oauth",
+                remember_me=True,
+            )
+        except Exception as e:
+            raise ValueError(f"Central-Auth connection failed: {str(e)}")
+        
+        return tokens
 
 class SignupService:
     def signup(self, email: str, password: str) -> User:

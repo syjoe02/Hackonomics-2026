@@ -38,4 +38,4 @@ class GoogleOAuthAdapter:
         }
         res = requests.get(self.USERINFO_URL, headers=headers, timeout=5)
         res.raise_for_status()
-        return res.json(0)
+        return res.json()

@@ -1,6 +1,7 @@
 import requests
 from django.conf import settings
 from django.shortcuts import redirect
+from django.http import HttpResponseRedirect
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -60,17 +61,34 @@ class GoogleLoginAPIView(APIView):
         url = adapter.build_login_url()
         return redirect(url)
     
-class GoogleCallbaackAPIView(APIView):
+class GoogleCallbackAPIView(APIView):
     def get(self, request):
         code = request.GET.get("code")
         if not code:
             return Response({"error": "Missing code"}, status=400)
 
         adapter = GoogleOAuthAdapter()
+        # google code -> token
         token_data = adapter.exchange_code_for_token(code)
-
         access_token = token_data["access_token"]
+        # token -> user info
         userinfo = adapter.get_userinfo(access_token)
+        email = userinfo.get("email")
+        # login
+        tokens = LoginService().googleLogin(email)
+        refresh_token = tokens["refresh_token"]
+        # refresh token -> stored in Cookie
+        response = redirect(f"{settings.FRONTEND_URL}/oauth/callback")
+
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            secure=settings.IS_PRODUCTION,
+            samesite="Strict" if settings.IS_PRODUCTION else "Lax",
+            path="/",
+        )
+        return response
 
 class LogoutAPIView(GenericAPIView):
     serializer_class = EmptySerializer
@@ -154,6 +172,8 @@ class CsrfAPIView(GenericAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 class MeAPIView(GenericAPIView):
+    serializer_class = EmptySerializer
+
     def get(self, request):
         access_token = request.headers.get("Authorization")
         if not access_token:

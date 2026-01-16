@@ -32,6 +32,11 @@ SECRET_KEY = 'django-insecure-cimnt!tid54x8l+$sz+#ev$opsw^dz)hy)qg-s%j82&u_dm4a1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = not IS_PRODUCTION
 
+FRONTEND_URL = env(
+    "FRONTEND_URL",
+    default="http://localhost:5173"
+)
+
 ALLOWED_HOSTS = []
 
 # Application definition
