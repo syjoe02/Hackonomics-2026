@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 
 from authentication.adapters.django.auth_service import CentralAuthAdapter
+from common.errors.exceptions import BusinessException
+from common.errors.error_codes import ErrorCode
 
 class LoginService:
     def __init__(self):
@@ -11,17 +13,16 @@ class LoginService:
     def login(self, email: str, password: str, device_id: str, remember_me: bool) -> dict:
         user = authenticate(username=email, password=password)
         if user is None:
-            raise ValueError("Invalid credentials")
+            raise BusinessException(ErrorCode.INVALID_CREDENTIALS)
+        
         try:
-            tokens = self.central_auth.login(
+            return self.central_auth.login(
                 user_id=str(user.id),
                 device_id=device_id,
                 remember_me=remember_me,
             )
-        except Exception as e:
-            raise ValueError(f"Central-Auth connection failed: {str(e)}")
-        
-        return tokens
+        except Exception:
+            raise BusinessException(ErrorCode.EXTERNAL_API_FAILED)
     
     def googleLogin(self, email: str) -> dict:
         user, _ = User.objects.get_or_create(
@@ -30,24 +31,22 @@ class LoginService:
         )
 
         try:
-            tokens = self.central_auth.login(
+            return self.central_auth.login(
                 user_id=str(user.id),
                 device_id="google-oauth",
                 remember_me=True,
             )
-        except Exception as e:
-            raise ValueError(f"Central-Auth connection failed: {str(e)}")
-        
-        return tokens
+        except Exception:
+            raise BusinessException(ErrorCode.EXTERNAL_API_FAILED)
 
 class SignupService:
     def signup(self, email: str, password: str) -> User:
         try:
-            user = User.objects.create_user(
+            return User.objects.create_user(
                 username=email,
                 email=email,
                 password=password,
             )
         except IntegrityError:
-            raise ValueError("Email already exists")
-        return user
+            raise BusinessException(ErrorCode.DUPLICATE_ENTRY)
+        

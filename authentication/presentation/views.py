@@ -26,15 +26,12 @@ class LoginAPIView(GenericAPIView):
         serializer = LoginRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        try:
-            tokens = LoginService().login(
-                email=serializer.validated_data["email"],
-                password=serializer.validated_data["password"],
-                device_id=serializer.validated_data["device_id"],
-                remember_me=serializer.validated_data.get("remember_me", False),
-            )
-        except ValueError:
-            raise BusinessException(ErrorCode.INVALID_CREDENTIALS)
+        tokens = LoginService().login(
+            email=serializer.validated_data["email"],
+            password=serializer.validated_data["password"],
+            device_id=serializer.validated_data["device_id"],
+            remember_me=serializer.validated_data.get("remember_me", False),
+        )
 
         access_token = tokens["access_token"]
         refresh_token = tokens["refresh_token"]
@@ -58,8 +55,7 @@ class LoginAPIView(GenericAPIView):
 class GoogleLoginAPIView(APIView):
     def get(self, request):
         adapter = GoogleOAuthAdapter()
-        url = adapter.build_login_url()
-        return redirect(url)
+        return redirect(adapter.build_login_url())
     
 class GoogleCallbackAPIView(APIView):
     def get(self, request):
@@ -80,7 +76,6 @@ class GoogleCallbackAPIView(APIView):
             raise BusinessException(ErrorCode.INVALID_PARAMETER)
         # login
         tokens = LoginService().googleLogin(email)
-        
         # refresh token -> stored in Cookie
         response = redirect(f"{settings.FRONTEND_URL}/oauth/callback")
         response.set_cookie(
@@ -127,14 +122,10 @@ class SignupAPIView(GenericAPIView):
         serializer = SignupRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        try:
-            user = SignupService().signup(
-                email=serializer.validated_data["email"],
-                password=serializer.validated_data["password"],
-            )
-        except ValueError as e:
-            raise BusinessException(ErrorCode.DUPLICATE_ENTRY)
-
+        user = SignupService().signup(
+            email=serializer.validated_data["email"],
+            password=serializer.validated_data["password"],
+        )
         return Response(
             {"id": user.id, "email": user.email,},
             status=status.HTTP_201_CREATED,
@@ -168,7 +159,6 @@ class RefreshAPIView(GenericAPIView):
             {"access_token": data["access_token"]}, 
             status=status.HTTP_200_OK
         )
-
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class CsrfAPIView(GenericAPIView):
