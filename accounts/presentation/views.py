@@ -1,9 +1,13 @@
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import ValidationError
+from rest_framework import status
 
-from accounts.application.usecases import UpdateAccountUseCase
+from accounts.application.usecases import (
+    GetAccountUseCase,
+    UpdateAccountUseCase,
+    GetExchangeRateUseCase,
+)
 from accounts.application.dto import AccountUpdateCommand
 from accounts.adapters.orm.repository import DjangoAccountRepository
 from accounts.adapters.events.publisher import OutboxEventAdapter
@@ -15,42 +19,39 @@ class AccountView(GenericAPIView):
     serializer_class = AccountUpdateSerializer
     permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        usecase = GetAccountUseCase(
+            repository = DjangoAccountRepository()
+        )
+        result = usecase.execute(user_id=request.user.id)
+        return Response(result, status=status.HTTP_200_OK)
+
     def post(self, request):
         serializer = AccountUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         command = AccountUpdateCommand(**serializer.validated_data)
 
-        user_id = request.user.id
-
         usecase = UpdateAccountUseCase(
             repository=DjangoAccountRepository(),
             event_publisher=OutboxEventAdapter(),
         )
-        usecase.execute(user_id=user_id, command=command)
+        usecase.execute(
+            user_id=request.user.id,
+            command=command,
+        )
 
-        return Response({"status": "ok"})
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
 class MyExchangeRateAPIView(GenericAPIView):
     serializer_class = EmptySerializer
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        repo = DjangoAccountRepository()
-        account = repo.find_by_user_id(request.user.id)
-
-        if not account:
-            return Response({"error": "Account not found"}, status=404)
+        usecase = GetExchangeRateUseCase(
+            repository=DjangoAccountRepository(),
+            exchange_service=ExchangeRateService(),
+        )
         
-        user_currency = account.country.currency.upper()
-
-        try:
-            rate = ExchangeRateService().get_usd_to_currency(user_currency)
-        except ValidationError as e:
-            raise ValidationError({"currency": str(e)})
-
-        return Response({
-            "base": "USD",
-            "target": user_currency,
-            "rate": rate,
-        })
+        result = usecase.execute(user_id=request.user.id)
+        return Response(result, status=status.HTTP_200_OK)

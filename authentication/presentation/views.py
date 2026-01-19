@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
+from drf_spectacular.utils import extend_schema
 
 from authentication.presentation.serializers import (
     LoginRequestSerializer,
@@ -49,11 +50,13 @@ class LoginAPIView(GenericAPIView):
         )
         return response
 
+@extend_schema(exclude=True)
 class GoogleLoginAPIView(APIView):
     def get(self, request):
         adapter = GoogleOAuthAdapter()
         return redirect(adapter.build_login_url())
     
+@extend_schema(exclude=True)
 class GoogleCallbackAPIView(APIView):
     def get(self, request):
         code = request.GET.get("code")
