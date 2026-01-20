@@ -1,4 +1,5 @@
 
+from django.db import transaction
 from django.conf import settings
 from django.shortcuts import redirect
 from rest_framework.generics import GenericAPIView
@@ -18,6 +19,8 @@ from authentication.application.services.authentication_service import Authentic
 from common.EmptySerializer import EmptySerializer
 from common.errors.error_codes import ErrorCode
 from common.errors.exceptions import BusinessException
+from events.application.publishers.event_dispatcher import EventDispatcher
+from events.adapters.outbox_repository import OutboxEventRepository
 
 class LoginAPIView(GenericAPIView):
     serializer_class = LoginRequestSerializer
@@ -109,25 +112,22 @@ class SignupAPIView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
 
         auth_service = AuthenticationService()
-        user = auth_service.signup(
-            email=serializer.validated_data["email"],
-            password=serializer.validated_data["password"],
-        )
-        # Publish events -> accounts/
-        from events.application.event_publisher import EventPublisher
-        from events.adapters.outbox_repository import OutboxEventRepository
-        publisher = EventPublisher(OutboxEventRepository())
-        publisher.publish(
-            aggregate_type="User",
-            aggregate_id=user.id,
-            event_type="USER_SIGNUP",
-            payload={
-                "user_id": user.id,
-                "email": user.email,
-            }
-        )
+        dispatcher = EventDispatcher(OutboxEventRepository())
+        
+        with transaction.atomic():
+            user = auth_service.signup(
+                email=serializer.validated_data["email"],
+                password=serializer.validated_data["password"],
+            )
+
+            # Publish event → Stored Outbox
+            dispatcher.publish_user_signup(user)
+
         return Response(
-            {"id": user.id, "email": user.email,},
+            {
+                "id": user.id,
+                "email": user.email,
+            },
             status=status.HTTP_201_CREATED,
         )
 
