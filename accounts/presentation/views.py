@@ -3,11 +3,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
-from accounts.application.usecases import (
-    GetAccountUseCase,
-    UpdateAccountUseCase,
-    GetExchangeRateUseCase,
-)
+from accounts.application.usecases.get_account_usecase import GetAccountUseCase
+from accounts.application.usecases.update_account_usecase import UpdateAccountUseCase
+from accounts.application.usecases.get_exchange_rate_usecase import GetExchangeRateUseCase
 from accounts.application.dto import AccountUpdateCommand
 from accounts.adapters.orm.repository import DjangoAccountRepository
 from accounts.adapters.events.publisher import OutboxEventAdapter

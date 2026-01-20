@@ -30,4 +30,6 @@ class AuthenticationService:
         return self.refresh_service.refresh(refresh_token)
 
     def verify(self, access_token):
-        return self.verify_service.verify(access_token)
+        service = VerifyService()
+        result = service.verify(access_token)
+        return result

@@ -5,8 +5,8 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.utils.decorators import method_decorator
+from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema
 
 from authentication.presentation.serializers import (
@@ -21,6 +21,7 @@ from common.errors.exceptions import BusinessException
 
 class LoginAPIView(GenericAPIView):
     serializer_class = LoginRequestSerializer
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = LoginRequestSerializer(data=request.data)
@@ -52,12 +53,16 @@ class LoginAPIView(GenericAPIView):
 
 @extend_schema(exclude=True)
 class GoogleLoginAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
         adapter = GoogleOAuthAdapter()
         return redirect(adapter.build_login_url())
     
 @extend_schema(exclude=True)
 class GoogleCallbackAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
         code = request.GET.get("code")
         if not code:
@@ -97,6 +102,7 @@ class LogoutAPIView(GenericAPIView):
     
 class SignupAPIView(GenericAPIView):
     serializer_class = SignupRequestSerializer
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = SignupRequestSerializer(data=request.data)
@@ -114,6 +120,7 @@ class SignupAPIView(GenericAPIView):
 
 class RefreshAPIView(GenericAPIView):
     serializer_class = EmptySerializer
+    permission_classes = [AllowAny]
 
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token")
@@ -125,22 +132,16 @@ class RefreshAPIView(GenericAPIView):
             {"access_token": tokens["access_token"]},
             status=status.HTTP_200_OK
         )
-
-@method_decorator(ensure_csrf_cookie, name="dispatch")
-class CsrfAPIView(GenericAPIView):
-    serializer_class = EmptySerializer
-
-    def get(self, request):
-        return Response(status=status.HTTP_204_NO_CONTENT)
     
 class MeAPIView(GenericAPIView):
     serializer_class = EmptySerializer
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        access_token = request.headers.get("Authorization")
-
-        auth_service = AuthenticationService()
-        user_info = auth_service.verify(access_token)
-
-        return Response(user_info, status=status.HTTP_200_OK)
-        
+        return Response(
+            {
+                "user_id": request.user.id,
+                "email": request.user.email,
+            },
+            status=status.HTTP_200_OK,
+        )
