@@ -1,4 +1,5 @@
 import requests
+import logging
 from django.conf import settings
 
 class CentralAuthAdapter:
@@ -47,7 +48,7 @@ class CentralAuthAdapter:
             f"{settings.CENTRAL_AUTH_URL}/auth/verify",
                 headers={
                     "X-Service-Key": settings.CENTRAL_AUTH_SERVICE_KEY,
-                    "Authorization": access_token,
+                    "Authorization": f"Bearer {access_token}",
                 },
                 timeout=settings.CENTRAL_AUTH_TIMEOUT,
         )
