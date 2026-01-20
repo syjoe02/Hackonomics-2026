@@ -1,6 +1,7 @@
 from drf_spectacular.extensions import OpenApiAuthenticationExtension
 from authentication.adapters.django.jwt_authentication import JWTAuthentication
 
+# For Swagger UI
 class JWTAuthenticationScheme(OpenApiAuthenticationExtension):
     target_class = JWTAuthentication
     name = "BearerAuth"
