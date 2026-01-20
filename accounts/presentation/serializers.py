@@ -6,7 +6,7 @@ from meta.application.services import CountryService
 class AccountUpdateSerializer(serializers.Serializer):
     country_code = serializers.CharField(max_length=2)
     currency = serializers.CharField(max_length=3)
-    annual_income = serializers.DecimalField(max_digits=5, decimal_places=2)
+    annual_income = serializers.DecimalField(max_digits=15, decimal_places=2)
     monthly_investable_amount = serializers.DecimalField(max_digits=15, decimal_places=2, min_value=Decimal("0"))
 
     def validate(self, attrs):
