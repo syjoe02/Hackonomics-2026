@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from decimal import Decimal
 
 @dataclass(frozen=True)
 class Country:
@@ -7,7 +8,7 @@ class Country:
 
 @dataclass(frozen=True)
 class AnnualIncome:
-    amount: int
+    amount: Decimal
 
     def __post_init__(self):
         if self.amount <= 0:

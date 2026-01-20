@@ -1,13 +1,16 @@
 from dataclasses import dataclass, field
-from typing import List
+from decimal import Decimal
+from typing import Optional
+
 from accounts.domain.value_objects import Country, AnnualIncome
 
 @dataclass
 class Account:
+    # Django User model "id" == user_id
     user_id : int
-    country : Country
-    income : AnnualIncome
-    monlty_investable_amount : int
+    country : Optional[Country]
+    income : Optional[AnnualIncome]
+    monthly_investable_amount : Optional[Decimal]
 
     def update_country(self, country: Country):
         self.country = country
@@ -15,5 +18,5 @@ class Account:
     def update_income(self, income: AnnualIncome):
         self.income = income
     
-    def update_monlty_investable_amount(self, amount: int):
-        self.monlty_investable_amount = amount
+    def update_monthly_investable_amount(self, amount: Decimal):
+        self.monthly_investable_amount = amount

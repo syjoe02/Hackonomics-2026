@@ -114,6 +114,11 @@
         "code": "ExternalApiFailed",
         "message": "External service failed"
     },
+    "INVALID_RESPONSE": {
+        "status": 502,
+        "code": "InvalidResponse",
+        "message": "Invalid response from external service"
+    },
     "TIMEOUT": {
         "status": 504,
         "code": "Timeout",

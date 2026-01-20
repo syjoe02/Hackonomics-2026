@@ -31,6 +31,7 @@ ERROR_MAP = {
     ErrorCode.PASSWORD_POLICY_VIOLATION.value: {"status": 400, "code": "PasswordPolicyViolation", "message": "Password does not satisfy security policy"},
 
     ErrorCode.EXTERNAL_API_FAILED.value: {"status": 502, "code": "ExternalApiFailed", "message": "External service failed"},
+    ErrorCode.INVALID_RESPONSE.value: {"status": 502, "code": "InvalidResponse", "message": "Invalid response from external service"},
     ErrorCode.TIMEOUT.value: {"status": 504, "code": "Timeout", "message": "External service timeout"},
     ErrorCode.SERVICE_UNAVAILABLE.value: {"status": 503, "code": "ServiceUnavailable", "message": "Service temporarily unavailable"},
 
