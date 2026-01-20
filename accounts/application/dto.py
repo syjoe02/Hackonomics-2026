@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from decimal import Decimal
+from typing import Optional
 
 @dataclass(frozen=True)
 class AccountUpdateCommand:
-    country_code: str
-    currency: str
-    annual_income: Decimal
-    monthly_investable_amount: Decimal
+    country_code: Optional[str]
+    currency: Optional[str]
+    annual_income: Optional[Decimal]
+    monthly_investable_amount: Optional[Decimal]
