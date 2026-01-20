@@ -9,3 +9,4 @@ pyJWT
 cryptography
 drf-spectacular
 python-dateutil
+kafka-python

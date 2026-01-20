@@ -113,6 +113,19 @@ class SignupAPIView(GenericAPIView):
             email=serializer.validated_data["email"],
             password=serializer.validated_data["password"],
         )
+        # Publish events -> accounts/
+        from events.application.event_publisher import EventPublisher
+        from events.adapters.outbox_repository import OutboxEventRepository
+        publisher = EventPublisher(OutboxEventRepository())
+        publisher.publish(
+            aggregate_type="User",
+            aggregate_id=user.id,
+            event_type="USER_SIGNUP",
+            payload={
+                "user_id": user.id,
+                "email": user.email,
+            }
+        )
         return Response(
             {"id": user.id, "email": user.email,},
             status=status.HTTP_201_CREATED,
