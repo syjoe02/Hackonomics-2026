@@ -10,3 +10,5 @@ cryptography
 drf-spectacular
 python-dateutil
 kafka-python
+celery
+redis
