@@ -37,7 +37,7 @@ FRONTEND_URL = env(
     default="http://localhost:5173"
 )
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
@@ -116,7 +116,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
-    "EXCEPTION_HANDLER": "common.errors.handlers.global_exception_handler",
+    # "EXCEPTION_HANDLER": "common.errors.handlers.global_exception_handler",
+    "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
 }
 
 SPECTACULAR_SETTINGS = {
