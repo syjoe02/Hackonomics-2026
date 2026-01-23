@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from decimal import Decimal
 
+
 @dataclass(frozen=True)
 class Country:
     code: str
     currency: str
+
 
 @dataclass(frozen=True)
 class AnnualIncome:

@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+
 # Using Django User model
 class DjangoUserRepository:
     def find_by_id(self, user_id: int):
@@ -15,7 +16,8 @@ class DjangoUserRepository:
             return User.objects.get(email=email)
         except User.DoesNotExist:
             return None
-        
+
+
 # for field in User._meta.fields:
 #     print(field.name, field.get_internal_type())
 #
@@ -30,4 +32,4 @@ class DjangoUserRepository:
 # is_staff BooleanField
 # is_active BooleanField
 # date_joined DateTimeField
-# 
+#

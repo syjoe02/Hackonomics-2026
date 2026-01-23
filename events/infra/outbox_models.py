@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Infra DB
 # OutboxEventRepository.save() -> OutboxEvent Table
 class OutboxEvent(models.Model):

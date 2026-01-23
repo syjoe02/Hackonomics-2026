@@ -1,13 +1,14 @@
 from decimal import Decimal
 
 from accounts.application.dto import AccountUpdateCommand
-from accounts.application.ports.repository import AccountRepository
 from accounts.application.ports.event_publisher import DomainEventPublisher
+from accounts.application.ports.repository import AccountRepository
 from accounts.domain.entities import Account
-from accounts.domain.value_objects import Country, AnnualIncome
 from accounts.domain.events import AccountEventType
+from accounts.domain.value_objects import AnnualIncome, Country
 from common.errors.exceptions import BusinessException
 from common.errors.handlers import ErrorCode
+
 
 class UpdateAccountUseCase:
     def __init__(
@@ -21,9 +22,9 @@ class UpdateAccountUseCase:
     def execute(self, user_id: int, command: AccountUpdateCommand) -> None:
         if not user_id:
             raise BusinessException(ErrorCode.UNAUTHORIZED)
-        
+
         account = self.repository.find_by_user_id(user_id)
-        
+
         # Create new Account
         if account is None:
             country_code = command.country_code or "CA"
@@ -63,7 +64,7 @@ class UpdateAccountUseCase:
 
         if command.monthly_investable_amount is not None:
             account.update_monthly_investable_amount(command.monthly_investable_amount)
-            
+
         self.repository.save(account)
         self.event_publisher.publish(
             aggregate_type="Account",
@@ -74,8 +75,10 @@ class UpdateAccountUseCase:
                 "country_code": account.country.code if account.country else None,
                 "currency": account.country.currency if account.country else None,
                 "annual_income": str(account.income.amount) if account.income else None,
-                "monthly_investable_amount": str(account.monthly_investable_amount)
-                if account.monthly_investable_amount is not None
-                else None,
+                "monthly_investable_amount": (
+                    str(account.monthly_investable_amount)
+                    if account.monthly_investable_amount is not None
+                    else None
+                ),
             },
         )

@@ -6,14 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('events', '0001_initial'),
+        ("events", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='outboxevent',
-            name='event_id',
-            field=models.CharField(default='7d1b9e8a-9c0c-4d59-a7e2-5e38a5dcb2c1', max_length=36, unique=True),
+            model_name="outboxevent",
+            name="event_id",
+            field=models.CharField(
+                default="7d1b9e8a-9c0c-4d59-a7e2-5e38a5dcb2c1",
+                max_length=36,
+                unique=True,
+            ),
             preserve_default=False,
         ),
     ]

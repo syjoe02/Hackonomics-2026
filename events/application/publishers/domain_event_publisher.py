@@ -1,5 +1,6 @@
 from events.domain.entities import DomainEvent
 
+
 class DomainEventPublisher:
     def __init__(self, repository):
         self.repository = repository

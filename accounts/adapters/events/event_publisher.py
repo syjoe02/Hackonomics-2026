@@ -1,6 +1,8 @@
-from accounts.application.ports.event_publisher import DomainEventPublisher as AccountPort
+from accounts.application.ports.event_publisher import \
+    DomainEventPublisher as AccountPort
+from events.application.publishers.domain_event_publisher import \
+    DomainEventPublisher as CorePublisher
 
-from events.application.publishers.domain_event_publisher import DomainEventPublisher as CorePublisher
 
 class AccountDomainEventPublisher(AccountPort):
     def __init__(self, outbox_repository):

@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
+
 from events.domain.entities import DomainEvent
+
 
 class EventRepository(ABC):
 

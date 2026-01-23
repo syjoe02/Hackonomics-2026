@@ -1,8 +1,9 @@
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 
-from common.errors.exceptions import BusinessException
 from common.errors.error_codes import ErrorCode
+from common.errors.exceptions import BusinessException
+
 
 class SignupService:
     def signup(self, email: str, password: str) -> User:

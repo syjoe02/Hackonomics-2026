@@ -45,4 +45,3 @@ class ErrorCode(Enum):
 
     INTERNAL_ERROR = "INTERNAL_ERROR"
     NOT_IMPLEMENTED = "NOT_IMPLEMENTED"
-    

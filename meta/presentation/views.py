@@ -1,10 +1,11 @@
+from drf_spectacular.utils import extend_schema
+from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from rest_framework import status
-from drf_spectacular.utils import extend_schema
 
 from meta.application.services import CountryService
 from meta.presentation.serializers import CountrySerializer
+
 
 class CountryListAPIView(GenericAPIView):
     serializer_class = CountrySerializer
@@ -13,7 +14,8 @@ class CountryListAPIView(GenericAPIView):
     def get(self, request):
         countries = CountryService().get_all_countries()
         return Response(countries, status=status.HTTP_200_OK)
-    
+
+
 class CountryDetailAPIView(GenericAPIView):
     serializer_class = CountrySerializer
 

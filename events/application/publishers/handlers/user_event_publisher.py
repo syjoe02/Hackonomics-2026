@@ -8,5 +8,5 @@ class UserEventPublisher:
             "payload": {
                 "user_id": user.id,
                 "email": user.email,
-            }
+            },
         }

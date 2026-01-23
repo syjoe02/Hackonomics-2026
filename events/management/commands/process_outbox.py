@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
+
 from events.consumers.outbox_to_kafka import run_worker
+
 
 class Command(BaseCommand):
     help = "Send Outbox events to Kafka"

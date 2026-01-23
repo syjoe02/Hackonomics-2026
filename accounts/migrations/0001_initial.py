@@ -7,20 +7,27 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='AccountModel',
+            name="AccountModel",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('user_id', models.IntegerField(unique=True)),
-                ('country_code', models.CharField(max_length=10)),
-                ('currency', models.CharField(max_length=10)),
-                ('annual_income', models.IntegerField()),
-                ('spending_categories', models.JSONField(default=list)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("user_id", models.IntegerField(unique=True)),
+                ("country_code", models.CharField(max_length=10)),
+                ("currency", models.CharField(max_length=10)),
+                ("annual_income", models.IntegerField()),
+                ("spending_categories", models.JSONField(default=list)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
         ),
     ]

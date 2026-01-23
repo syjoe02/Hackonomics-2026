@@ -1,6 +1,7 @@
 from accounts.application.ports.repository import AccountRepository
-from common.errors.exceptions import BusinessException
 from common.errors.error_codes import ErrorCode
+from common.errors.exceptions import BusinessException
+
 
 class GetExchangeRateUseCase:
     def __init__(self, repository: AccountRepository, exchange_service):

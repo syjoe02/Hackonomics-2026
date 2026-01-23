@@ -2,6 +2,7 @@ from events.application.ports.event_repository import EventRepository
 from events.domain.entities import DomainEvent
 from events.infra.outbox_models import OutboxEvent
 
+
 class OutboxEventRepository(EventRepository):
     def save(self, event: DomainEvent):
         OutboxEvent.objects.create(

@@ -1,26 +1,24 @@
-
-from django.db import transaction
 from django.conf import settings
+from django.db import transaction
 from django.shortcuts import redirect
-from rest_framework.generics import GenericAPIView
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import AllowAny
-from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema
+from rest_framework import status
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from authentication.presentation.serializers import (
-    LoginRequestSerializer,
-    SignupRequestSerializer,
-)
 from authentication.adapters.django.google_oauth import GoogleOAuthAdapter
-from authentication.application.services.authentication_service import AuthenticationService
+from authentication.application.services.authentication_service import \
+    AuthenticationService
+from authentication.presentation.serializers import (LoginRequestSerializer,
+                                                     SignupRequestSerializer)
 from common.EmptySerializer import EmptySerializer
 from common.errors.error_codes import ErrorCode
 from common.errors.exceptions import BusinessException
-from events.application.publishers.event_dispatcher import EventDispatcher
 from events.adapters.outbox_repository import OutboxEventRepository
+from events.application.publishers.event_dispatcher import EventDispatcher
+
 
 class LoginAPIView(GenericAPIView):
     serializer_class = LoginRequestSerializer
@@ -39,8 +37,7 @@ class LoginAPIView(GenericAPIView):
         )
 
         response = Response(
-            {"access_token": tokens["access_token"]},
-            status=status.HTTP_200_OK
+            {"access_token": tokens["access_token"]}, status=status.HTTP_200_OK
         )
 
         response.set_cookie(
@@ -49,10 +46,14 @@ class LoginAPIView(GenericAPIView):
             httponly=True,
             secure=settings.IS_PRODUCTION,
             samesite="Strict" if settings.IS_PRODUCTION else "Lax",
-            max_age=60 * 60 * 24 * (30 if serializer.validated_data.get("remember_me") else 7),
-            path="/"
+            max_age=60
+            * 60
+            * 24
+            * (30 if serializer.validated_data.get("remember_me") else 7),
+            path="/",
         )
         return response
+
 
 @extend_schema(exclude=True)
 class GoogleLoginAPIView(APIView):
@@ -61,7 +62,8 @@ class GoogleLoginAPIView(APIView):
     def get(self, request):
         adapter = GoogleOAuthAdapter()
         return redirect(adapter.build_login_url())
-    
+
+
 @extend_schema(exclude=True)
 class GoogleCallbackAPIView(APIView):
     permission_classes = [AllowAny]
@@ -86,6 +88,7 @@ class GoogleCallbackAPIView(APIView):
         )
         return response
 
+
 class LogoutAPIView(GenericAPIView):
     serializer_class = EmptySerializer
 
@@ -99,10 +102,11 @@ class LogoutAPIView(GenericAPIView):
         response.delete_cookie(
             "refresh_token",
             samesite="Strict" if settings.IS_PRODUCTION else "Lax",
-            path="/"
+            path="/",
         )
         return response
-    
+
+
 class SignupAPIView(GenericAPIView):
     serializer_class = SignupRequestSerializer
     permission_classes = [AllowAny]
@@ -113,7 +117,7 @@ class SignupAPIView(GenericAPIView):
 
         auth_service = AuthenticationService()
         dispatcher = EventDispatcher(OutboxEventRepository())
-        
+
         with transaction.atomic():
             user = auth_service.signup(
                 email=serializer.validated_data["email"],
@@ -131,6 +135,7 @@ class SignupAPIView(GenericAPIView):
             status=status.HTTP_201_CREATED,
         )
 
+
 class RefreshAPIView(GenericAPIView):
     serializer_class = EmptySerializer
     permission_classes = [AllowAny]
@@ -142,10 +147,10 @@ class RefreshAPIView(GenericAPIView):
         tokens = auth_service.refresh(refresh_token)
 
         return Response(
-            {"access_token": tokens["access_token"]},
-            status=status.HTTP_200_OK
+            {"access_token": tokens["access_token"]}, status=status.HTTP_200_OK
         )
-    
+
+
 class MeAPIView(GenericAPIView):
     serializer_class = EmptySerializer
     permission_classes = [IsAuthenticated]

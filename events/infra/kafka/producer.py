@@ -1,6 +1,8 @@
 import json
-from kafka import KafkaProducer
+
 from django.conf import settings
+from kafka import KafkaProducer
+
 
 class KafkaEventProducer:
     def __init__(self):

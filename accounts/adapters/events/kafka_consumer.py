@@ -1,7 +1,10 @@
-from kafka import KafkaConsumer
 import json
+
 from django.conf import settings
+from kafka import KafkaConsumer
+
 from accounts.application.usecases.event_router import AccountEventRouter
+
 
 def start_kafka_consumer():
     consumer = KafkaConsumer(

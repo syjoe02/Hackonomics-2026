@@ -1,7 +1,9 @@
-from events.application.publishers.handlers.user_event_publisher import UserEventPublisher
-from events.application.publishers.domain_event_publisher import DomainEventPublisher
-
+from events.application.publishers.domain_event_publisher import \
+    DomainEventPublisher
+from events.application.publishers.handlers.user_event_publisher import \
+    UserEventPublisher
 from events.domain.entities import DomainEvent
+
 
 class EventDispatcher:
     def __init__(self, repository):
