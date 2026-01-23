@@ -1,7 +1,8 @@
 import urllib.parse
-import requests
 
+import requests
 from django.conf import settings
+
 
 class GoogleOAuthAdapter:
     AUTH_BASE_URL = "https://accounts.google.com/o/oauth2/auth"
@@ -19,7 +20,7 @@ class GoogleOAuthAdapter:
         }
         query = urllib.parse.urlencode(params)
         return f"{self.AUTH_BASE_URL}?{query}"
-    
+
     def exchange_code_for_token(self, code: str) -> dict:
         data = {
             "client_id": settings.GOOGLE_CLIENT_ID,
@@ -31,11 +32,9 @@ class GoogleOAuthAdapter:
         res = requests.post(self.TOKEN_URL, data=data, timeout=5)
         res.raise_for_status()
         return res.json()
-    
+
     def get_userinfo(self, access_token: str) -> dict:
-        headers = {
-            "Authorization": f"Bearer {access_token}"
-        }
+        headers = {"Authorization": f"Bearer {access_token}"}
         res = requests.get(self.USERINFO_URL, headers=headers, timeout=5)
         res.raise_for_status()
         return res.json()

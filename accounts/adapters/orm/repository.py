@@ -1,7 +1,8 @@
+from accounts.adapters.orm.models import AccountModel
 from accounts.application.ports.repository import AccountRepository
 from accounts.domain.entities import Account
-from accounts.domain.value_objects import Country, AnnualIncome
-from accounts.adapters.orm.models import AccountModel
+from accounts.domain.value_objects import AnnualIncome, Country
+
 
 class DjangoAccountRepository(AccountRepository):
     def find_by_user_id(self, user_id: int):

@@ -6,28 +6,32 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0003_alter_accountmodel_annual_income_and_more'),
+        ("accounts", "0003_alter_accountmodel_annual_income_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='accountmodel',
-            name='annual_income',
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=15, null=True),
+            model_name="accountmodel",
+            name="annual_income",
+            field=models.DecimalField(
+                blank=True, decimal_places=2, max_digits=15, null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='accountmodel',
-            name='country_code',
+            model_name="accountmodel",
+            name="country_code",
             field=models.CharField(blank=True, max_length=2, null=True),
         ),
         migrations.AlterField(
-            model_name='accountmodel',
-            name='currency',
+            model_name="accountmodel",
+            name="currency",
             field=models.CharField(blank=True, max_length=3, null=True),
         ),
         migrations.AlterField(
-            model_name='accountmodel',
-            name='monthly_investable_amount',
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=15, null=True),
+            model_name="accountmodel",
+            name="monthly_investable_amount",
+            field=models.DecimalField(
+                blank=True, decimal_places=2, max_digits=15, null=True
+            ),
         ),
     ]

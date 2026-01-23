@@ -10,3 +10,10 @@ cryptography
 drf-spectacular
 python-dateutil
 kafka-python
+celery
+redis
+black
+isort
+flake8
+mypy
+django-stubs

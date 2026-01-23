@@ -1,9 +1,10 @@
 from django.contrib.auth.models import User
+
 from authentication.adapters.django.auth_service import CentralAuthAdapter
 from authentication.adapters.django.google_oauth import GoogleOAuthAdapter
-
-from common.errors.exceptions import BusinessException
 from common.errors.error_codes import ErrorCode
+from common.errors.exceptions import BusinessException
+
 
 class OAuthService:
     def __init__(self):
@@ -21,10 +22,7 @@ class OAuthService:
         if not email:
             raise BusinessException(ErrorCode.INVALID_PARAMETER)
 
-        user, _ = User.objects.get_or_create(
-            username=email,
-            defaults={"email": email}
-        )
+        user, _ = User.objects.get_or_create(username=email, defaults={"email": email})
 
         try:
             return self.central_auth.login(

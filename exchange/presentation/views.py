@@ -1,13 +1,15 @@
-from rest_framework.generics import GenericAPIView
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
-from rest_framework import status
+from datetime import date
 
-from accounts.adapters.orm.repository import DjangoAccountRepository
+from rest_framework import status
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+
 from common.EmptySerializer import EmptySerializer
-from exchange.application.services import ExchangeRateService, ExchangeHistoryService
+from exchange.application.services import (ExchangeHistoryService,
+                                           ExchangeRateService)
 from exchange.presentation.serializers import ExchangeRateResponseSerializer
-from exchange.application.services import ExchangeHistoryService
+
 
 class UsdToCurrencyAPIView(GenericAPIView):
     serializer_class = ExchangeRateResponseSerializer
@@ -22,10 +24,11 @@ class UsdToCurrencyAPIView(GenericAPIView):
             "target": currency.upper(),
             "rate": rate,
         }
-    
+
         serializer = self.get_serializer(instance=data)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
+
 class ExchangeHistoryAPIView(GenericAPIView):
     serializer_class = EmptySerializer
     permission_classes = [AllowAny]
@@ -33,15 +36,18 @@ class ExchangeHistoryAPIView(GenericAPIView):
     def get(self, request):
         currency = request.query_params.get("currency")
         period = request.query_params.get("period", "6m")
-        
+
         history = ExchangeHistoryService().get_usd_history_until_today(
-            currency=currency.upper(),
+            currency=currency.upper() if currency else None,
             period=period,
         )
-        return Response({
-            "base": "USD",
-            "target": currency,
-            "period": period,
-            "end_date": str(__import__("datetime").date.today()),
-            "history": history
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "base": "USD",
+                "target": currency.upper(),
+                "period": period,
+                "end_date": str(date.today()),
+                "history": history,
+            },
+            status=status.HTTP_200_OK,
+        )

@@ -1,5 +1,7 @@
-from typing import Protocol, Dict, Any
+from abc import ABC, abstractmethod
 
-class DomainEventPublisher(Protocol):
-    def publish(self, event_type: str, payload: Dict):
-        raise NotImplementedError
+
+class DomainEventPublisher(ABC):
+    @abstractmethod
+    def publish(self, *, aggregate_type, aggregate_id, event_type, payload):
+        pass

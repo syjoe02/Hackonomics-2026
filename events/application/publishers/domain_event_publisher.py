@@ -1,11 +1,11 @@
 from events.domain.entities import DomainEvent
-from events.application.ports.event_repository import EventRepository
 
-class EventPublisher:
-    def __init__(self, repository: EventRepository):
+
+class DomainEventPublisher:
+    def __init__(self, repository):
         self.repository = repository
 
-    def publish(self, aggregate_type: str, aggregate_id: str, event_type: str, payload: dict):
+    def publish(self, *, aggregate_type, aggregate_id, event_type, payload):
         event = DomainEvent(
             aggregate_type=aggregate_type,
             aggregate_id=str(aggregate_id),

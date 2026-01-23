@@ -1,5 +1,6 @@
 import requests
 
+
 class FrankfurterClient:
     BASE_URL = "https://api.frankfurter.app"
 

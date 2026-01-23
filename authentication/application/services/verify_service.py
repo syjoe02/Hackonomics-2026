@@ -1,7 +1,8 @@
 from authentication.adapters.django.auth_service import CentralAuthAdapter
 from authentication.adapters.orm.repository import DjangoUserRepository
-from common.errors.exceptions import BusinessException
 from common.errors.error_codes import ErrorCode
+from common.errors.exceptions import BusinessException
+
 
 class VerifyService:
     def __init__(self):
@@ -16,7 +17,7 @@ class VerifyService:
             payload = self.central_auth.verify(access_token)
         except Exception:
             raise BusinessException(ErrorCode.TOKEN_INVALID)
-    
+
         user_id = payload.get("user_id")
         if not user_id:
             raise BusinessException(ErrorCode.UNAUTHORIZED)
@@ -31,5 +32,3 @@ class VerifyService:
             "device_id": payload.get("device_id"),
             "exp": payload.get("exp"),
         }
-
-    

@@ -1,6 +1,7 @@
 from authentication.adapters.django.auth_service import CentralAuthAdapter
-from common.errors.exceptions import BusinessException
 from common.errors.error_codes import ErrorCode
+from common.errors.exceptions import BusinessException
+
 
 class RefreshService:
     def __init__(self):

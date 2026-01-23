@@ -1,7 +1,8 @@
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, Any
-import uuid
+from typing import Any, Dict
+
 
 @dataclass(frozen=True)
 class DomainEvent:

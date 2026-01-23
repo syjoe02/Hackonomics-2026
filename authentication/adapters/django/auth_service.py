@@ -1,6 +1,7 @@
 import requests
 from django.conf import settings
 
+
 class CentralAuthAdapter:
     def login(self, user_id: str, device_id: str, remember_me: bool) -> dict:
         res = requests.post(
@@ -45,11 +46,11 @@ class CentralAuthAdapter:
     def verify(self, access_token: str):
         res = requests.post(
             f"{settings.CENTRAL_AUTH_URL}/auth/verify",
-                headers={
-                    "X-Service-Key": settings.CENTRAL_AUTH_SERVICE_KEY,
-                    "Authorization": f"Bearer {access_token}",
-                },
-                timeout=settings.CENTRAL_AUTH_TIMEOUT,
+            headers={
+                "X-Service-Key": settings.CENTRAL_AUTH_SERVICE_KEY,
+                "Authorization": f"Bearer {access_token}",
+            },
+            timeout=settings.CENTRAL_AUTH_TIMEOUT,
         )
 
         if res.status_code != 200:
