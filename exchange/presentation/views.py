@@ -1,9 +1,9 @@
+from datetime import date
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework import status
 
-from accounts.adapters.orm.repository import DjangoAccountRepository
 from common.EmptySerializer import EmptySerializer
 from exchange.application.services import ExchangeRateService, ExchangeHistoryService
 from exchange.presentation.serializers import ExchangeRateResponseSerializer
@@ -35,13 +35,13 @@ class ExchangeHistoryAPIView(GenericAPIView):
         period = request.query_params.get("period", "6m")
         
         history = ExchangeHistoryService().get_usd_history_until_today(
-            currency=currency.upper(),
+            currency=currency.upper() if currency else None,
             period=period,
         )
         return Response({
             "base": "USD",
-            "target": currency,
+            "target": currency.upper(),
             "period": period,
-            "end_date": str(__import__("datetime").date.today()),
+            "end_date": str(date.today()),
             "history": history
         }, status=status.HTTP_200_OK)

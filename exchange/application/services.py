@@ -32,7 +32,10 @@ class ExchangeHistoryService:
         self.client = FrankfurterClient()
     
     def get_usd_history_until_today(self, currency: str, period: int):
-        if period not in [3, 6, 12, 24]:
+        if not currency:
+            raise BusinessException(ErrorCode.INVALID_PARAMETER)
+        
+        if period not in self.PERIOD_MAP:
             raise BusinessException(ErrorCode.INVALID_PARAMETER)
         
         months = self.PERIOD_MAP[period]
