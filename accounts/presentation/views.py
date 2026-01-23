@@ -8,10 +8,12 @@ from accounts.application.usecases.update_account_usecase import UpdateAccountUs
 from accounts.application.usecases.get_exchange_rate_usecase import GetExchangeRateUseCase
 from accounts.application.dto import AccountUpdateCommand
 from accounts.adapters.orm.repository import DjangoAccountRepository
-from accounts.adapters.events.publisher import OutboxEventAdapter
+from accounts.adapters.events.event_publisher import AccountDomainEventPublisher
 from accounts.presentation.serializers import AccountUpdateSerializer
+
 from common.EmptySerializer import EmptySerializer
 from exchange.application.services import ExchangeRateService
+from events.adapters.outbox_repository import OutboxEventRepository
 
 class AccountView(GenericAPIView):
     serializer_class = AccountUpdateSerializer
@@ -30,9 +32,13 @@ class AccountView(GenericAPIView):
 
         command = AccountUpdateCommand(**serializer.validated_data)
 
+        event_publisher = AccountDomainEventPublisher(
+            outbox_repository=OutboxEventRepository(),
+        )
+
         usecase = UpdateAccountUseCase(
             repository=DjangoAccountRepository(),
-            event_publisher=OutboxEventAdapter(),
+            event_publisher=event_publisher,
         )
         usecase.execute(
             user_id=request.user.id,

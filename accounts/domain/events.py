@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
-@dataclass(frozen=True)
-class AccountUpdated:
-    user_id : int
+class AccountEventType:
+    ACCOUNT_CREATED = "ACCOUNT_CREATED"
+    ACCOUNT_UPDATED = "ACCOUNT_UPDATED"

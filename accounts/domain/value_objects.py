@@ -11,9 +11,14 @@ class AnnualIncome:
     amount: Decimal
 
     def __post_init__(self):
+        if self.amount is None:
+            raise ValueError("AnnualIncome cannot be None")
+
         if self.amount <= 0:
-            raise ValueError("Annual income must be positive")
-    
+            raise ValueError("AnnualIncome must be greater than 0")
+
+        object.__setattr__(self, "amount", Decimal(self.amount))
+
     @property
-    def monthly_amount(self) -> int:
-        return self.amount // 12
+    def monthly(self) -> Decimal:
+        return self.amount / Decimal("12")

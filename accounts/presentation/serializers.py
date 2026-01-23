@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, ROUND_DOWN
 from rest_framework import serializers
 
 from meta.application.services import CountryService
@@ -12,6 +12,12 @@ class AccountUpdateSerializer(serializers.Serializer):
     def validate(self, attrs):
         country_code = attrs["country_code"].upper()
         currency = attrs["currency"].upper()
+        # Decimal type
+        annual_income: Decimal = Decimal(attrs["annual_income"])
+        monthly_amount: Decimal = Decimal(attrs["monthly_investable_amount"])
+        # Fix to 2 decimal places
+        annual_income = annual_income.quantize(Decimal("0.01"), rounding=ROUND_DOWN)
+        monthly_amount = monthly_amount.quantize(Decimal("0.01"), rounding=ROUND_DOWN)
 
         try:
             country = CountryService().get_country(country_code)
@@ -28,4 +34,6 @@ class AccountUpdateSerializer(serializers.Serializer):
         
         attrs["country_code"] = country_code
         attrs["currency"] = currency
+        attrs["annual_income"] = annual_income
+        attrs["monthly_investable_amount"] = monthly_amount
         return attrs
