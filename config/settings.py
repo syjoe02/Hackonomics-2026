@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "events",
     "accounts",
     "authentication.apps.AuthenticationConfig",
+    "simulation",
     # Third-party
     "drf_spectacular",
     "rest_framework",
