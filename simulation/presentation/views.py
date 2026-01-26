@@ -5,23 +5,15 @@ from rest_framework import status
 from simulation.application.usecases.compare_investment_usecase import (
     CompareInvestmentUseCase
 )
+from simulation.presentation.serializers import CompareSimulationRequestSerializer
 from exchange.application.services import ExchangeHistoryService
 from accounts.adapters.orm.repository import DjangoAccountRepository
 
-from common import EmptySerializer
-
 
 class CompareDcaVsDepositAPIView(GenericAPIView):
-    serializer_class = EmptySerializer
+    serializer_class = CompareSimulationRequestSerializer
 
     def post(self, request):
-        """
-        Body:
-        {
-            "period": "1y" | "2y",
-            "deposit_rate": 3.5
-        }
-        """
         user = request.user
         period = request.data.get("period", "1y")
         deposit_rate = request.data.get("deposit_rate")
@@ -34,7 +26,7 @@ class CompareDcaVsDepositAPIView(GenericAPIView):
         result = usecase.execute(
             user_id=user.id,
             period=period,
-            deposit_rate=float(deposit_rate),
+            deposit_rate=deposit_rate,
         )
 
         return Response(result.to_dict(), status=status.HTTP_200_OK)
