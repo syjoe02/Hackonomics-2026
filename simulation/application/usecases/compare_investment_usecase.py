@@ -1,14 +1,15 @@
 from datetime import datetime
-from typing import List, Dict
 from decimal import Decimal, getcontext
+from typing import Dict, List
 
-from simulation.domain.entities import SimulationResult
 from accounts.application.ports.repository import AccountRepository
-from exchange.application.services import ExchangeHistoryService
-from common.errors.exceptions import BusinessException
 from common.errors.error_codes import ErrorCode
+from common.errors.exceptions import BusinessException
+from exchange.application.services import ExchangeHistoryService
+from simulation.domain.entities import SimulationResult
 
 getcontext().prec = 28
+
 
 class CompareInvestmentUseCase:
     PERIOD_MAP = {
@@ -30,7 +31,7 @@ class CompareInvestmentUseCase:
         period: str,
         deposit_rate: float,
     ) -> dict:
-    
+
         if period not in self.PERIOD_MAP:
             raise BusinessException(ErrorCode.INVALID_PARAMETER)
 
@@ -45,7 +46,7 @@ class CompareInvestmentUseCase:
         monthly_amount = Decimal(str(account.monthly_investable_amount))
         if monthly_amount <= 0:
             raise BusinessException(ErrorCode.INVALID_PARAMETER)
-        
+
         currency = account.country.currency.upper()
 
         history = self.exchange_history_service.get_usd_history_until_today(
@@ -58,14 +59,14 @@ class CompareInvestmentUseCase:
         months = self.PERIOD_MAP[period]
         monthly_rates = self._extract_monthly_rates(history, months)
         if len(monthly_rates) < months:
-            raise BusinessException(ErrorCode.DATA_NOT_FOUND)            
+            raise BusinessException(ErrorCode.DATA_NOT_FOUND)
 
         # USD, DCA simulation start
         total_usd = Decimal("0")
         total_invested = Decimal("0")
 
         for h in monthly_rates:
-            rate = Decimal(str(h["rate"])) # 1 USD = rate target currency
+            rate = Decimal(str(h["rate"]))  # 1 USD = rate target currency
             usd = monthly_amount / rate
             total_usd += usd
             total_invested += monthly_amount
@@ -96,26 +97,26 @@ class CompareInvestmentUseCase:
         )
 
     def _extract_monthly_rates(
-            self,
-            history: List[Dict],
-            months: int,
-        ) -> List[Dict]:
+        self,
+        history: List[Dict],
+        months: int,
+    ) -> List[Dict]:
 
-            monthly = []
-            seen = set()
+        monthly = []
+        seen = set()
 
-            for h in history:
-                d = datetime.fromisoformat(h["date"])
-                key = (d.year, d.month)
+        for h in history:
+            d = datetime.fromisoformat(h["date"])
+            key = (d.year, d.month)
 
-                if key not in seen:
-                    monthly.append(h)
-                    seen.add(key)
+            if key not in seen:
+                monthly.append(h)
+                seen.add(key)
 
-                if len(monthly) == months:
-                    break
+            if len(monthly) == months:
+                break
 
-            return monthly
+        return monthly
 
     def _make_summary(self, winner: str, diff: Decimal, currency: str) -> str:
         diff = round(diff, 2)

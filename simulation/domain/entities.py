@@ -13,8 +13,8 @@ class SimulationResult:
         summary: str,
     ):
 
-        self.currency = currency              
-        self.period = period                  
+        self.currency = currency
+        self.period = period
         self.monthly_amount = monthly_amount
         self.deposit_rate = deposit_rate
 

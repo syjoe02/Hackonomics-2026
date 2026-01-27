@@ -1,4 +1,5 @@
 from django.urls import path
+
 from simulation.presentation.views import CompareDcaVsDepositAPIView
 
 urlpatterns = [

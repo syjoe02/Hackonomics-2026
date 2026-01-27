@@ -1,13 +1,13 @@
+from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from rest_framework import status
 
-from simulation.application.usecases.compare_investment_usecase import (
-    CompareInvestmentUseCase
-)
-from simulation.presentation.serializers import CompareSimulationRequestSerializer
-from exchange.application.services import ExchangeHistoryService
 from accounts.adapters.orm.repository import DjangoAccountRepository
+from exchange.application.services import ExchangeHistoryService
+from simulation.application.usecases.compare_investment_usecase import \
+    CompareInvestmentUseCase
+from simulation.presentation.serializers import \
+    CompareSimulationRequestSerializer
 
 
 class CompareDcaVsDepositAPIView(GenericAPIView):
