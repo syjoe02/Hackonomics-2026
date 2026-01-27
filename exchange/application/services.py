@@ -45,12 +45,18 @@ class ExchangeHistoryService:
         end = date.today()
         start = end - relativedelta(months=months)
 
-        raw = self.client.get_historical(
-            start=start.isoformat(),
-            end=end.isoformat(),
-            base="USD",
-            target=currency,
-        )
+        try:
+            raw = self.client.get_historical(
+                start=start.isoformat(),
+                end=end.isoformat(),
+                base="USD",
+                target=currency,
+            )
+        except requests.exceptions.Timeout:
+            raise BusinessException(ErrorCode.EXTERNAL_API_TIMEOUT)
+        except requests.exceptions.RequestException:
+            raise BusinessException(ErrorCode.EXTERNAL_API_ERROR)
+
         rates = raw.get("rates")
         if not rates:
             raise BusinessException(ErrorCode.DATA_NOT_FOUND)
@@ -64,4 +70,4 @@ class ExchangeHistoryService:
                 }
             )
 
-            return history
+        return history

@@ -138,6 +138,7 @@ class SignupAPIView(GenericAPIView):
 
 class RefreshAPIView(GenericAPIView):
     serializer_class = EmptySerializer
+    authentication_classes = []
     permission_classes = [AllowAny]
 
     def post(self, request):

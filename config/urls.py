@@ -37,4 +37,5 @@ urlpatterns = [
     path("api/account/", include("accounts.presentation.urls")),
     path("api/meta/", include("meta.presentation.urls")),
     path("api/exchange/", include("exchange.presentation.urls")),
+    path("api/simulation/", include("simulation.presentation.urls")),
 ]

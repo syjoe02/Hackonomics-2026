@@ -25,6 +25,8 @@ class AccountView(GenericAPIView):
     def get(self, request):
         usecase = GetAccountUseCase(repository=DjangoAccountRepository())
         result = usecase.execute(user_id=request.user.id)
+        if result is None:
+            return Response(None, status=status.HTTP_204_NO_CONTENT)
         return Response(result, status=status.HTTP_200_OK)
 
     def post(self, request):

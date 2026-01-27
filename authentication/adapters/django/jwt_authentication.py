@@ -9,6 +9,14 @@ from authentication.application.services.authentication_service import \
 
 class JWTAuthentication(BaseAuthentication):
     def authenticate(self, request):
+        skip_paths = [
+            "/api/auth/login/",
+            "/api/auth/signup/",
+            "/api/auth/refresh/",
+        ]
+        if any(request.path.startswith(p) for p in skip_paths):
+            return None
+
         auth_header = request.headers.get("Authorization")
 
         if not auth_header:

@@ -28,7 +28,7 @@ IS_PRODUCTION = ENV == "prod"
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-cimnt!tid54x8l+$sz+#ev$opsw^dz)hy)qg-s%j82&u_dm4a1"
+SECRET_KEY = env("DJANGO_SECRETKEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = not IS_PRODUCTION
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "events",
     "accounts",
     "authentication.apps.AuthenticationConfig",
+    "simulation",
     # Third-party
     "drf_spectacular",
     "rest_framework",
@@ -103,6 +104,11 @@ GOOGLE_REDIRECT_URI = env(
     "GOOGLE_REDIRECT_URI", default="http://localhost:8000/api/auth/google/callback/"
 )
 
+
+if DEBUG:
+    EXCEPTION_HANDLER = "rest_framework.views.exception_handler"
+else:
+    EXCEPTION_HANDLER = "common.errors.handlers.global_exception_handler"
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -111,8 +117,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
-    # "EXCEPTION_HANDLER": "common.errors.handlers.global_exception_handler",
-    "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
+    "EXCEPTION_HANDLER": EXCEPTION_HANDLER,
 }
 
 SPECTACULAR_SETTINGS = {
