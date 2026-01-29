@@ -1,5 +1,5 @@
+import requests
 from datetime import date
-
 from dateutil.relativedelta import relativedelta
 
 from common.errors.error_codes import ErrorCode
