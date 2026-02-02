@@ -41,6 +41,7 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     # Local apps
+    "user_calendar",
     "exchange",
     "meta",
     "events",
