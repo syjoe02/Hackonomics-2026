@@ -73,7 +73,6 @@ class GoogleCalendarOAuthCallbackAPIView(APIView):
             access_token=credentials.token,
             refresh_token=credentials.refresh_token or existing_calendar.refresh_token,
         )
-
         serializer = UserCalendarSerializer.from_domain(calendar)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -93,18 +92,18 @@ class CategoryCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        req = CategoryCreateSerializer(data=request.data)
-        req.is_valid(raise_exception=True)
-        
+        serializer = CategoryCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         service = CategoryService(DjangoCategoryRepository())
+        
         category = service.create_category(
             user_id=UserId(request.user.id),
-            name=request.data["name"],
-            color=request.data["color"],
-            estimated_monthly_cost=Decimal(request.data["estimated_monthly_cost"]),
+            name=serializer.validated_data["name"],
+            color=serializer.validated_data.get("color") or "#3b82f6",
         )
-        serializer = CategorySerializer.from_domain(category)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        response = CategorySerializer.from_domain(category)
+        return Response(response.data, status=status.HTTP_201_CREATED)
 
 
 class CategoryListAPIView(APIView):
@@ -113,9 +112,9 @@ class CategoryListAPIView(APIView):
     def get(self, request):
         service = CategoryService(DjangoCategoryRepository())
         categories = service.list_categories(UserId(request.user.id))
-        serializer = [CategorySerializer.from_domain(c).data for c in categories]
+        data = [CategorySerializer.from_domain(c).data for c in categories]
 
-        return Response(serializer, status=status.HTTP_200_OK)
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class CategoryDeleteAPIView(APIView):
@@ -123,7 +122,7 @@ class CategoryDeleteAPIView(APIView):
 
     def delete(self, request, category_id: str):
         service = CategoryService(DjangoCategoryRepository())
-        service.delete_category(CategoryId(UUID(category_id)))
+        service.delete_category(CategoryId(UUID(category_id)),  UserId(request.user.id))
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -132,8 +131,8 @@ class CalendarEventCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        req = CalendarEventCreateSerializer(data=request.data)
-        req.is_valid(raise_exception=True)
+        serializer = CalendarEventCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
         service = CalendarEventService(
             event_repo=DjangoCalendarEventRepository(),
@@ -142,15 +141,15 @@ class CalendarEventCreateAPIView(APIView):
 
         event = service.create_event(
             user_id=UserId(request.user.id),
-            title=req.validated_data["title"],
-            start_at=req.validated_data["start_at"],
-            end_at=req.validated_data["end_at"],
-            estimated_cost=req.validated_data.get("estimated_cost"),
-            category_ids=req.validated_data.get("category_ids", []),
+            title=serializer.validated_data["title"],
+            start_at=serializer.validated_data["start_at"],
+            end_at=serializer.validated_data["end_at"],
+            estimated_cost=serializer.validated_data.get("estimated_cost"),
+            category_ids=serializer.validated_data.get("category_ids", []),
         )
 
-        serializer = CalendarEventSerializer.from_domain(event)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        response = CalendarEventSerializer.from_domain(event)
+        return Response(response.data, status=status.HTTP_201_CREATED)
 
 
 class CalendarEventListAPIView(APIView):

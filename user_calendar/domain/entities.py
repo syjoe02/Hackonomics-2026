@@ -1,10 +1,8 @@
 from __future__ import annotations
-
 from dataclasses import dataclass, field
 from typing import List, Optional
 from decimal import Decimal
-from datetime import datetime, timezone
-from uuid import UUID, uuid4
+from datetime import datetime
 
 from .events import UserCalendarConnected, UserCalendarCreated, CalendarEventCreated
 from .value_objects import CalendarId, CalendarProvider, CreatedAt, UserId, EventId, CategoryId
@@ -78,14 +76,12 @@ class Category:
         user_id: UserId,
         name: str,
         color: str,
-        estimated_monthly_cost: Decimal,
     ):
         return Category(
-            category_id=uuid4(),
+            category_id=CategoryId.new(),
             user_id=user_id,
             name=name,
             color=color,
-            estimated_monthly_cost=estimated_monthly_cost,
             created_at=CreatedAt.now(),
         )
 
@@ -113,7 +109,6 @@ class CalendarEvent:
         estimated_cost: Optional[Decimal] = None,
         category_ids: Optional[List[CategoryId]] = None,
     ) -> "CalendarEvent":
-
         event = CalendarEvent(
             event_id=EventId.new(),
             user_id=user_id,
@@ -124,7 +119,6 @@ class CalendarEvent:
             estimated_cost=estimated_cost,
             category_ids=category_ids or [],
         )
-
         event._raise_event(
             CalendarEventCreated(
                 event_id=event.event_id.value,

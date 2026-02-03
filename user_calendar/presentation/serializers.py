@@ -1,7 +1,3 @@
-from decimal import Decimal
-from typing import List, Optional
-from uuid import UUID
-
 from rest_framework import serializers
 
 from user_calendar.domain.entities import CalendarEvent, Category, UserCalendar
@@ -33,31 +29,29 @@ class UserCalendarSerializer(serializers.Serializer):
         )
 
 class CategoryCreateSerializer(serializers.Serializer):
-    name = serializers.CharField()
-    color = serializers.CharField()
-    estimated_monthly_cost = serializers.DecimalField(max_digits=15, decimal_places=2)
+    name = serializers.CharField(max_length=100)
+    color = serializers.CharField(required=False, allow_blank=True)
+
 
 class CategorySerializer(serializers.Serializer):
-    category_id = serializers.UUIDField(read_only=True)
+    id = serializers.UUIDField(read_only=True)
     user_id = serializers.IntegerField(read_only=True)
     name = serializers.CharField()
     color = serializers.CharField()
-    estimated_monthly_cost = serializers.DecimalField(max_digits=12, decimal_places=2)
     created_at = serializers.DateTimeField()
 
     @classmethod
     def from_domain(cls, category: Category):
         return cls({
-            "category_id": category.category_id,
-            "user_id": category.user_id,
+            "id": category.category_id.value,
+            "user_id": category.user_id.value,
             "name": category.name,
             "color": category.color,
-            "estimated_monthly_cost": category.estimated_monthly_cost,
             "created_at": category.created_at.value,
         })
     
 class CalendarEventCreateSerializer(serializers.Serializer):
-    title = serializers.CharField()
+    title = serializers.CharField(max_length=255)
     start_at = serializers.DateTimeField()
     end_at = serializers.DateTimeField()
     estimated_cost = serializers.DecimalField(
@@ -69,15 +63,13 @@ class CalendarEventCreateSerializer(serializers.Serializer):
         allow_empty=True,
     )
 
-
 class CalendarEventSerializer(serializers.Serializer):
-    event_id = serializers.UUIDField()
+    id = serializers.UUIDField()
     user_id = serializers.IntegerField()
     title = serializers.CharField()
     start_at = serializers.DateTimeField()
     end_at = serializers.DateTimeField()
     created_at = serializers.DateTimeField()
-
     estimated_cost = serializers.DecimalField(
         max_digits=15, decimal_places=2, allow_null=True
     )
@@ -87,13 +79,12 @@ class CalendarEventSerializer(serializers.Serializer):
     def from_domain(cls, event: CalendarEvent):
         return cls(
             {
-                "event_id": event.event_id.value,
+                "id": event.event_id.value,
                 "user_id": event.user_id.value,
                 "title": event.title,
                 "start_at": event.start_at,
                 "end_at": event.end_at,
                 "created_at": event.created_at.value,
-                
                 "estimated_cost": event.estimated_cost,
                 "category_ids": [cid.value for cid in event.category_ids],
             }

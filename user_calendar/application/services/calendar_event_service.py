@@ -37,10 +37,7 @@ class CalendarEventService:
         for cid in category_ids:
             cat = self.category_repo.find_by_id(CategoryId(cid))
             if cat is None or cat.user_id.value != user_id.value:
-                raise BusinessException(
-                    ErrorCode.FORBIDDEN,
-                    f"Invalid category_id={cid} for user_id={user_id.value}",
-                )
+                raise BusinessException(ErrorCode.FORBIDDEN, f"Invalid category_id={cid} for user_id={user_id.value}")
             domain_category_ids.append(cat.category_id)
 
         event = CalendarEvent.create(
