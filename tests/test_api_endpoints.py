@@ -9,6 +9,7 @@ def api_client():
 
 # ===================== exchange =====================
 
+
 @pytest.mark.django_db
 def test_usd_to_currency_success(api_client):
     response = api_client.get("/api/exchange/usd-to/KRW/")
@@ -35,6 +36,7 @@ def test_exchange_history_invalid_method(api_client):
 
 # ===================== meta =====================
 
+
 @pytest.mark.django_db
 def test_country_list_success(api_client):
     response = api_client.get("/api/meta/countries/")
@@ -60,6 +62,7 @@ def test_country_detail_invalid_method(api_client):
 
 
 # ===================== simulation =====================
+
 
 @pytest.mark.django_db
 def test_compare_dca_vs_deposit_success(api_client):
@@ -89,6 +92,7 @@ def test_compare_dca_vs_deposit_invalid_payload(api_client):
 
 # ===================== accounts =====================
 
+
 @pytest.mark.django_db
 def test_account_me_success(api_client):
     response = api_client.get("/api/account/me/")
@@ -114,6 +118,7 @@ def test_my_exchange_rate_invalid_method(api_client):
 
 
 # ===================== authentication =====================
+
 
 @pytest.mark.django_db
 def test_login_success(api_client):

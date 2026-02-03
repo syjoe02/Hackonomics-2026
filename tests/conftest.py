@@ -1,7 +1,8 @@
 import json
-import pytest
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+import pytest
 
 
 class JSONTestReporter:
@@ -15,7 +16,7 @@ class JSONTestReporter:
             "nodeid": item.nodeid,
             "file": str(item.fspath),
             "outcome": report.outcome,  # passed | failed | skipped
-            "when": report.when,        # setup | call | teardown
+            "when": report.when,  # setup | call | teardown
             "duration": report.duration,
         }
 
@@ -23,7 +24,9 @@ class JSONTestReporter:
             entry["error"] = {
                 "type": call.excinfo.type.__name__ if call.excinfo else None,
                 "message": str(call.excinfo.value) if call.excinfo else None,
-                "traceback": report.longreprtext if hasattr(report, "longreprtext") else None,
+                "traceback": (
+                    report.longreprtext if hasattr(report, "longreprtext") else None
+                ),
             }
 
         self.results.append(entry)
@@ -62,6 +65,5 @@ def pytest_sessionfinish(session, exitstatus):
     }
 
     Path("pytest_results.json").write_text(
-        json.dumps(output, indent=2),
-        encoding="utf-8"
+        json.dumps(output, indent=2), encoding="utf-8"
     )

@@ -33,7 +33,6 @@ ERROR_MAP = {
         "code": "GoogleAuthCodeMissing",
         "message": "Google authorization code is missing",
     },
-
     # === 401 UNAUTHORIZED ===
     ErrorCode.INVALID_CREDENTIALS.value: {
         "status": 401,
@@ -70,7 +69,6 @@ ERROR_MAP = {
         "code": "GoogleAuthFailed",
         "message": "Google authentication failed",
     },
-
     # === 403 FORBIDDEN ===
     ErrorCode.FORBIDDEN.value: {
         "status": 403,
@@ -97,7 +95,6 @@ ERROR_MAP = {
         "code": "UserDeleted",
         "message": "User account is deleted",
     },
-
     # === 404 NOT FOUND ===
     ErrorCode.DATA_NOT_FOUND.value: {
         "status": 404,
@@ -119,14 +116,12 @@ ERROR_MAP = {
         "code": "UserCalendarNotFound",
         "message": "User Calendar is not found",
     },
-
     # === 405 METHOD NOT ALLOWED ===
     ErrorCode.METHOD_NOT_ALLOWED.value: {
         "status": 405,
         "code": "MethodNotAllowed",
         "message": "HTTP method not allowed",
     },
-
     # === 409 CONFLICT ===
     ErrorCode.DUPLICATE_ENTRY.value: {
         "status": 409,
@@ -138,21 +133,18 @@ ERROR_MAP = {
         "code": "DataIntegrityViolation",
         "message": "Data integrity violation",
     },
-
     # === 413 PAYLOAD TOO LARGE ===
     ErrorCode.FILE_TOO_LARGE.value: {
         "status": 413,
         "code": "FileTooLarge",
         "message": "Uploaded file is too large",
     },
-
     # === 415 UNSUPPORTED MEDIA TYPE ===
     ErrorCode.UNSUPPORTED_MEDIA_TYPE.value: {
         "status": 415,
         "code": "UnsupportedMediaType",
         "message": "Unsupported media type",
     },
-
     # === 500 INTERNAL SERVER ERROR ===
     ErrorCode.FILE_UPLOAD_FAILED.value: {
         "status": 500,
@@ -164,14 +156,12 @@ ERROR_MAP = {
         "code": "InternalError",
         "message": "Internal server error",
     },
-
     # === 501 NOT IMPLEMENTED ===
     ErrorCode.NOT_IMPLEMENTED.value: {
         "status": 501,
         "code": "NotImplemented",
         "message": "Feature not implemented",
     },
-
     # === 502 BAD GATEWAY ===
     ErrorCode.EXTERNAL_API_FAILED.value: {
         "status": 502,
@@ -188,14 +178,12 @@ ERROR_MAP = {
         "code": "GoogleUserinfoFailed",
         "message": "Failed to fetch user info from Google",
     },
-
     # === 503 SERVICE UNAVAILABLE ===
     ErrorCode.SERVICE_UNAVAILABLE.value: {
         "status": 503,
         "code": "ServiceUnavailable",
         "message": "Service temporarily unavailable",
     },
-
     # === 504 GATEWAY TIMEOUT ===
     ErrorCode.TIMEOUT.value: {
         "status": 504,
