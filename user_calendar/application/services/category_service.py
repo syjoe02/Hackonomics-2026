@@ -37,7 +37,6 @@ class CategoryService:
             color=color,
             estimated_monthly_cost=estimated_monthly_cost,
         )
-
         self.repository.save(category)
         return category
 
@@ -49,8 +48,7 @@ class CategoryService:
                 ErrorCode.DATA_NOT_FOUND,
                 f"Category not found: {category_id.value}",
             )
-
         self.repository.delete(category_id)
 
     def list_categories(self, user_id: UserId) -> List[Category]:
-        return self.repository.find_by_user(user_id)
+        return self.repository.find_by_user_id(user_id)

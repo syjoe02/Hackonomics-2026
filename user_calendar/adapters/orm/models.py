@@ -25,5 +25,16 @@ class CategoryModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        unique_together = ("user_id", "name")
+class CalendarEventModel(models.Model):
+    event_id = models.UUIDField(unique=True)
+    user_id = models.IntegerField(db_index=True) # maps to Django auth_user.id
+
+    title = models.CharField(max_length=255)
+    start_at = models.DateTimeField()
+    end_at = models.DateTimeField()
+
+    estimated_cost = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
+    category_ids = models.JSONField(default=list)
+
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField(auto_now=True)

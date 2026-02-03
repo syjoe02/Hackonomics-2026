@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 
@@ -12,11 +12,6 @@ class CalendarId:
         return CalendarId(uuid4())
     
 @dataclass(frozen=True)
-class CategoryId:
-    value: UUID
-
-
-@dataclass(frozen=True)
 class UserId:
     value: int
 
@@ -26,14 +21,31 @@ class CalendarProvider:
     value: str  # "google"
 
     @staticmethod
-    def google():
+    def google() -> "CalendarProvider":
         return CalendarProvider("google")
-
 
 @dataclass(frozen=True)
 class CreatedAt:
     value: datetime
 
     @staticmethod
-    def now():
-        return CreatedAt(datetime.utcnow())
+    def now() -> "CreatedAt":
+        return CreatedAt(datetime.now(timezone.utc))
+    
+# Categories
+@dataclass(frozen=True)
+class CategoryId:
+    value: UUID
+
+    @staticmethod
+    def new() -> "CategoryId":
+        return CategoryId(uuid4())
+
+# Events
+@dataclass(frozen=True)
+class EventId:
+    value: UUID
+
+    @staticmethod
+    def new() -> "EventId":
+        return EventId(uuid4())
