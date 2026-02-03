@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
+from decimal import Decimal
+from uuid import UUID, uuid4
 
 from .events import UserCalendarConnected, UserCalendarCreated
 from .value_objects import CalendarId, CalendarProvider, CreatedAt, UserId
@@ -59,3 +61,26 @@ class UserCalendar:
         events = self._events
         self._events = []
         return events
+
+@dataclass
+class Category:
+    category_id: UUID
+    user_id: int
+    name: str
+    color: str
+    estimated_monthly_cost: Decimal
+
+    @staticmethod
+    def create(
+        user_id: int,
+        name: str,
+        color: str,
+        estimated_monthly_cost: Decimal,
+    ):
+        return Category(
+            category_id=uuid4(),
+            user_id=user_id,
+            name=name,
+            color=color,
+            estimated_monthly_cost=estimated_monthly_cost,
+        )

@@ -1,10 +1,7 @@
 from uuid import UUID
-
 from rest_framework import serializers
 
-from user_calendar.domain.entities import UserCalendar
-from user_calendar.domain.value_objects import (CalendarId, CalendarProvider,
-                                                CreatedAt, UserId)
+from user_calendar.domain.entities import UserCalendar, Category
 
 
 class UserCalendarSerializer(serializers.Serializer):
@@ -30,3 +27,20 @@ class UserCalendarSerializer(serializers.Serializer):
                 "refresh_token": calendar.refresh_token,
             }
         )
+
+class CategorySerializer(serializers.Serializer):
+    category_id = serializers.UUIDField(read_only=True)
+    user_id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField()
+    color = serializers.CharField()
+    estimated_monthly_cost = serializers.DecimalField(max_digits=12, decimal_places=2)
+
+    @classmethod
+    def from_domain(cls, category: Category):
+        return cls({
+            "category_id": category.category_id,
+            "user_id": category.user_id,
+            "name": category.name,
+            "color": category.color,
+            "estimated_monthly_cost": category.estimated_monthly_cost,
+        })

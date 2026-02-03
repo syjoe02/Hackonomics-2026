@@ -10,6 +10,10 @@ class CalendarId:
     @staticmethod
     def new():
         return CalendarId(uuid4())
+    
+@dataclass(frozen=True)
+class CategoryId:
+    value: UUID
 
 
 @dataclass(frozen=True)

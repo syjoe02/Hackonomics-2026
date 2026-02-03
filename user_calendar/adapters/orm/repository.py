@@ -1,13 +1,13 @@
-from typing import Optional
+from typing import Optional, List
 
 from django.core.exceptions import ObjectDoesNotExist
 
-from user_calendar.application.ports.repository import UserCalendarRepository
-from user_calendar.domain.entities import UserCalendar
+from user_calendar.application.ports.repository import UserCalendarRepository, CategoryRepository
+from user_calendar.domain.entities import UserCalendar, Category
 from user_calendar.domain.value_objects import (CalendarId, CalendarProvider,
                                                 CreatedAt, UserId)
 
-from .models import UserCalendarModel
+from .models import UserCalendarModel, CategoryModel
 
 
 class DjangoUserCalendarRepository(UserCalendarRepository):
@@ -58,3 +58,39 @@ class DjangoUserCalendarRepository(UserCalendarRepository):
 
         except ObjectDoesNotExist:
             return None
+
+class DjangoCategoryRepository(CategoryRepository):
+
+    def save(self, category: Category) -> None:
+        CategoryModel.objects.update_or_create(
+            category_id=category.category_id,
+            defaults={
+                "user_id": category.user_id,
+                "name": category.name,
+                "color": category.color,
+                "estimated_monthly_cost": category.estimated_monthly_cost,
+            },
+        )
+
+    def find_by_user(self, user_id: int) -> List[Category]:
+        models = CategoryModel.objects.filter(user_id=user_id.value)
+        return [self._to_domain(m) for m in models]
+    
+    def find_by_id(self, category_id) -> Optional[Category]:
+        try:
+            model = CategoryModel.objects.get(category_id=category_id.value)
+            return self._to_domain(model)
+        except ObjectDoesNotExist:
+            return None
+
+    def delete(self, category_id) -> None:
+        CategoryModel.objects.filter(category_id=category_id).delete()
+
+    def _to_domain(self, model: CategoryModel) -> Category:
+        return Category(
+            category_id=model.category_id,
+            user_id=model.user_id,
+            name=model.name,
+            color=model.color,
+            estimated_monthly_cost=model.estimated_monthly_cost,
+        )
