@@ -102,10 +102,12 @@ ACCOUNT_EMAIL_VERIFICATION = "none"
 GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET")
 GOOGLE_AUTH_REDIRECT_URI = env(
-    "GOOGLE_AUTH_REDIRECT_URI", default="http://localhost:8000/api/auth/google/callback/"
+    "GOOGLE_AUTH_REDIRECT_URI",
+    default="http://localhost:8000/api/auth/google/callback/",
 )
 GOOGLE_CALENDAR_REDIRECT_URI = env(
-    "GOOGLE_CALENDAR_REDIRECT_URI", default="http://localhost:8000/api/calendar/oauth/callback/"
+    "GOOGLE_CALENDAR_REDIRECT_URI",
+    default="http://localhost:8000/api/calendar/oauth/callback/",
 )
 
 

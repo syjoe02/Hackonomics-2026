@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
-from typing import Optional, List
+from typing import List, Optional
 
-from .value_objects import CalendarId, UserId, CalendarProvider, CreatedAt
-from .events import UserCalendarCreated, UserCalendarConnected
+from .events import UserCalendarConnected, UserCalendarCreated
+from .value_objects import CalendarId, CalendarProvider, CreatedAt, UserId
 
 
 @dataclass
@@ -35,7 +35,9 @@ class UserCalendar:
 
         return calendar
 
-    def connect_google_calendar(self, google_calendar_id: str, access_token: str, refresh_token: str):
+    def connect_google_calendar(
+        self, google_calendar_id: str, access_token: str, refresh_token: str
+    ):
         self.google_calendar_id = google_calendar_id
         self.access_token = access_token
         self.refresh_token = refresh_token

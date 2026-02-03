@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
+from typing import Optional
+
 from .entities import UserCalendar
 from .value_objects import CalendarId, UserId
-from typing import Optional
 
 
 class UserCalendarRepository(ABC):

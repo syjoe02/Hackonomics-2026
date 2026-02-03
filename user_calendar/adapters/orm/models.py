@@ -1,8 +1,10 @@
-from django.db import models
 import uuid
 
+from django.db import models
+
+
 class UserCalendarModel(models.Model):
-    user_id = models.IntegerField(unique=True) # mapping Django User.id 1:1
+    user_id = models.IntegerField(unique=True)  # mapping Django User.id 1:1
     calendar_id = models.UUIDField(default=uuid.uuid4, unique=True)
 
     provider = models.CharField(max_length=50, default="google")

@@ -2,10 +2,9 @@ from typing import Optional
 
 from common.errors.error_codes import ErrorCode
 from common.errors.exceptions import BusinessException
-
 from user_calendar.application.ports.repository import UserCalendarRepository
 from user_calendar.domain.entities import UserCalendar
-from user_calendar.domain.value_objects import UserId, CalendarId
+from user_calendar.domain.value_objects import CalendarId, UserId
 
 
 class UserCalendarService:
