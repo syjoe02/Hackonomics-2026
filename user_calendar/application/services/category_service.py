@@ -15,16 +15,12 @@ class CategoryService:
         self,
         user_id: UserId,
         name: str,
-        color: str,
+        color: str | None = None,
     ) -> Category:
-        if not name.strip():
-            raise BusinessException(
-                ErrorCode.INVALID_PARAMETER,
-                "Category name cannot be empty",
-            )
+        if not name or not name.strip():
+            raise BusinessException(ErrorCode.INVALID_PARAMETER)
         # Default color
-        if not color:
-            color = "#3b82f6"
+        color = "#3b82f6"
 
         category = Category.create(
             user_id=user_id.value,
@@ -38,12 +34,9 @@ class CategoryService:
         existing = self.repository.find_by_id(category_id)
 
         if existing is None:
-            raise BusinessException(
-                ErrorCode.DATA_NOT_FOUND,
-                f"Category not found: {category_id.value}",
-            )
+            raise BusinessException(ErrorCode.DATA_NOT_FOUND)
         if existing.user_id.value != user_id.value:
-            raise BusinessException(ErrorCode.FORBIDDEN, "Cannot delete category not owned by user")
+            raise BusinessException(ErrorCode.FORBIDDEN)
         self.repository.delete(category_id)
 
     def list_categories(self, user_id: UserId) -> List[Category]:

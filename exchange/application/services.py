@@ -54,9 +54,9 @@ class ExchangeHistoryService:
                 target=currency,
             )
         except requests.exceptions.Timeout:
-            raise BusinessException(ErrorCode.EXTERNAL_API_TIMEOUT)
+            raise BusinessException(ErrorCode.TIMEOUT)
         except requests.exceptions.RequestException:
-            raise BusinessException(ErrorCode.EXTERNAL_API_ERROR)
+            raise BusinessException(ErrorCode.EXTERNAL_API_FAILED)
 
         rates = raw.get("rates")
         if not rates:

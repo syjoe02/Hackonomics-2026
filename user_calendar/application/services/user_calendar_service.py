@@ -23,11 +23,7 @@ class UserCalendarService:
         calendar = self.repository.find_by_user_id(user_id)
 
         if calendar is None:
-            raise BusinessException(
-                ErrorCode.USER_CALENDAR_NOT_FOUND,
-                f"UserCalendar not found for user_id={user_id.value}",
-            )
-
+            raise BusinessException(ErrorCode.USER_CALENDAR_NOT_FOUND)
         return calendar
 
     def connect_google_calendar(
@@ -40,10 +36,7 @@ class UserCalendarService:
         calendar = self.repository.find_by_user_id(user_id)
 
         if calendar is None:
-            raise BusinessException(
-                ErrorCode.USER_CALENDAR_NOT_FOUND,
-                f"Cannot connect Google Calendar. No calendar exists for user_id={user_id.value}",
-            )
+            raise BusinessException(ErrorCode.USER_CALENDAR_NOT_FOUND)
 
         # Domain behavior
         calendar.connect_google_calendar(
@@ -58,8 +51,5 @@ class UserCalendarService:
         calendar = self.repository.find_by_id(calendar_id)
 
         if calendar is None:
-            raise BusinessException(
-                ErrorCode.USER_CALENDAR_NOT_FOUND,
-                f"UserCalendar not found for calendar_id={calendar_id.value}",
-            )
+            raise BusinessException(ErrorCode.USER_CALENDAR_NOT_FOUND)
         return calendar
