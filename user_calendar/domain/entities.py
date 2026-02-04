@@ -68,15 +68,10 @@ class Category:
     user_id: UserId
     name: str
     color: str
-    estimated_monthly_cost: Decimal
     created_at: CreatedAt
 
     @staticmethod
-    def create(
-        user_id: UserId,
-        name: str,
-        color: str,
-    ):
+    def create(user_id: UserId, name: str, color: str) -> "Category":
         return Category(
             category_id=CategoryId.new(),
             user_id=user_id,
@@ -87,7 +82,6 @@ class Category:
 
 @dataclass
 class CalendarEvent:
-    # Aggregate Root
     event_id: EventId
     user_id: UserId
     title: str
@@ -106,9 +100,13 @@ class CalendarEvent:
         title: str,
         start_at: datetime,
         end_at: datetime,
+
         estimated_cost: Optional[Decimal] = None,
         category_ids: Optional[List[CategoryId]] = None,
     ) -> "CalendarEvent":
+        if end_at <= start_at:
+            raise ValueError("end_at must be after start_at")
+
         event = CalendarEvent(
             event_id=EventId.new(),
             user_id=user_id,
@@ -116,6 +114,7 @@ class CalendarEvent:
             start_at=start_at,
             end_at=end_at,
             created_at=CreatedAt.now(),
+
             estimated_cost=estimated_cost,
             category_ids=category_ids or [],
         )

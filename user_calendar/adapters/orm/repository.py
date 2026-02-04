@@ -72,9 +72,9 @@ class DjangoUserCalendarRepository(UserCalendarRepository):
 class DjangoCategoryRepository(CategoryRepository):
     def save(self, category: Category) -> None:
         CategoryModel.objects.update_or_create(
-            category_id=category.category_id,
+            id=category.category_id.value,
             defaults={
-                "user_id": category.user_id,
+                "user_id": category.user_id.value,
                 "name": category.name,
                 "color": category.color,
             },
@@ -84,7 +84,7 @@ class DjangoCategoryRepository(CategoryRepository):
         rows = CategoryModel.objects.filter(user_id=user_id.value).order_by("created_at")
         return [
             Category(
-                category_id=CategoryId(r.category_id),
+                category_id=CategoryId(r.id),
                 user_id=UserId(r.user_id),
                 name=r.name,
                 color=r.color,
@@ -123,11 +123,9 @@ class DjangoCalendarEventRepository(CalendarEventRepository):
                 "created_at": event.created_at.value,
             },
         )
-        if event.category_ids:
-            cats = CategoryModel.objects.filter(id__in=[cid.value for cid in event.category_ids])
-            model.categories.set(cats)
-        else:
-            model.categories.clear()
+        cat_ids = [cid.value for cid in event.category_ids]
+        cats = CategoryModel.objects.filter(id__in=cat_ids, user_id=event.user_id.value)
+        model.categories.set(cats)
 
     def find_by_user_id(self, user_id: UserId) -> List[CalendarEvent]:
         rows = CalendarEventModel.objects.filter(user_id=user_id.value).order_by("start_at")
@@ -163,4 +161,4 @@ class DjangoCalendarEventRepository(CalendarEventRepository):
         )
 
     def delete(self, event_id: EventId) -> None:
-        CalendarEventModel.objects.filter(event_id=event_id.value).delete()
+        CalendarEventModel.objects.filter(id=event_id.value).delete()

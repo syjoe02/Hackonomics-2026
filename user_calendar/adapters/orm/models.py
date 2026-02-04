@@ -18,7 +18,7 @@ class UserCalendarModel(models.Model):
 class CategoryModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user_id = models.IntegerField(db_index=True)
-
+    
     name = models.CharField(max_length=100)
     color = models.CharField(max_length=20, default="#3b82f6")
 

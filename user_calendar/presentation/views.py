@@ -99,7 +99,7 @@ class CategoryCreateAPIView(APIView):
         category = service.create_category(
             user_id=UserId(request.user.id),
             name=serializer.validated_data["name"],
-            color=serializer.validated_data.get("color") or "#3b82f6",
+            color=serializer.validated_data.get("color"),
         )
 
         response = CategorySerializer.from_domain(category)

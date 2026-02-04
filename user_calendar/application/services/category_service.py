@@ -23,7 +23,7 @@ class CategoryService:
         color = "#3b82f6"
 
         category = Category.create(
-            user_id=user_id.value,
+            user_id=user_id,
             name=name,
             color=color,
         )

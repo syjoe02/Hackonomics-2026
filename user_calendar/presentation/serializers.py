@@ -32,7 +32,6 @@ class CategoryCreateSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=100)
     color = serializers.CharField(required=False, allow_blank=True)
 
-
 class CategorySerializer(serializers.Serializer):
     id = serializers.UUIDField(read_only=True)
     user_id = serializers.IntegerField(read_only=True)
@@ -54,6 +53,7 @@ class CalendarEventCreateSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=255)
     start_at = serializers.DateTimeField()
     end_at = serializers.DateTimeField()
+
     estimated_cost = serializers.DecimalField(
         max_digits=15, decimal_places=2, required=False, allow_null=True
     )
@@ -70,6 +70,7 @@ class CalendarEventSerializer(serializers.Serializer):
     start_at = serializers.DateTimeField()
     end_at = serializers.DateTimeField()
     created_at = serializers.DateTimeField()
+
     estimated_cost = serializers.DecimalField(
         max_digits=15, decimal_places=2, allow_null=True
     )
@@ -85,6 +86,7 @@ class CalendarEventSerializer(serializers.Serializer):
                 "start_at": event.start_at,
                 "end_at": event.end_at,
                 "created_at": event.created_at.value,
+
                 "estimated_cost": event.estimated_cost,
                 "category_ids": [cid.value for cid in event.category_ids],
             }
