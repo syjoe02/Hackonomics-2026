@@ -91,12 +91,15 @@ class CategoryCreateAPIView(APIView):
     def post(self, request):
         serializer = CategoryCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        color = serializer.validated_data.get("color")
         service = CategoryService(DjangoCategoryRepository())
 
+        if not color:
+            color = "#3b82f6"
         category = service.create_category(
             user_id=UserId(request.user.id),
             name=serializer.validated_data["name"],
-            color=serializer.validated_data.get("color"),
+            color=color,
         )
 
         response = CategorySerializer.from_domain(category)

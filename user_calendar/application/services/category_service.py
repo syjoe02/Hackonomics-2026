@@ -20,7 +20,8 @@ class CategoryService:
         if not name or not name.strip():
             raise BusinessException(ErrorCode.INVALID_PARAMETER)
         # Default color
-        color = "#3b82f6"
+        if not color:
+            color = "#3b82f6"
 
         category = Category.create(
             user_id=user_id,
