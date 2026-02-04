@@ -1,4 +1,5 @@
 import uuid
+
 from django.db import models
 
 
@@ -15,29 +16,35 @@ class UserCalendarModel(models.Model):
     class Meta:
         db_table = "user_calendar"
 
+
 class CategoryModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user_id = models.IntegerField(db_index=True)
-    
+
     name = models.CharField(max_length=100)
     color = models.CharField(max_length=20, default="#3b82f6")
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         db_table = "calendar_category"
 
+
 class CalendarEventModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user_id = models.IntegerField(db_index=True) # maps to Django auth_user.id
+    user_id = models.IntegerField(db_index=True)  # maps to Django auth_user.id
 
     title = models.CharField(max_length=255)
     start_at = models.DateTimeField()
     end_at = models.DateTimeField()
 
-    estimated_cost = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
-    categories = models.ManyToManyField(CategoryModel, related_name="events", blank=True)
+    estimated_cost = models.DecimalField(
+        max_digits=15, decimal_places=2, null=True, blank=True
+    )
+    categories = models.ManyToManyField(
+        CategoryModel, related_name="events", blank=True
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

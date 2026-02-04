@@ -2,10 +2,10 @@ from typing import List
 
 from common.errors.error_codes import ErrorCode
 from common.errors.exceptions import BusinessException
-
+from user_calendar.application.ports.repository import CategoryRepository
 from user_calendar.domain.entities import Category
 from user_calendar.domain.value_objects import CategoryId, UserId
-from user_calendar.application.ports.repository import CategoryRepository
+
 
 class CategoryService:
     def __init__(self, repository: CategoryRepository):

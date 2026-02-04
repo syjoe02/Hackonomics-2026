@@ -5,11 +5,8 @@ from uuid import UUID
 
 from common.errors.error_codes import ErrorCode
 from common.errors.exceptions import BusinessException
-
 from user_calendar.application.ports.repository import (
-    CalendarEventRepository,
-    CategoryRepository,
-)
+    CalendarEventRepository, CategoryRepository)
 from user_calendar.domain.entities import CalendarEvent
 from user_calendar.domain.value_objects import CategoryId, EventId, UserId
 
@@ -37,7 +34,7 @@ class CalendarEventService:
 
         if end_at <= start_at:
             raise BusinessException(ErrorCode.INVALID_PARAMETER)
-        
+
         domain_category_ids: List[CategoryId] = []
         for cid in category_ids:
             cat = self.category_repo.find_by_id(CategoryId(cid))

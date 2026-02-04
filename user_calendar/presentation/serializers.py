@@ -21,16 +21,17 @@ class UserCalendarSerializer(serializers.Serializer):
                 "user_id": calendar.user_id.value,
                 "provider": calendar.provider.value,
                 "created_at": calendar.created_at.value,
-
                 "google_calendar_id": calendar.google_calendar_id,
                 "access_token": calendar.access_token,
                 "refresh_token": calendar.refresh_token,
             }
         )
 
+
 class CategoryCreateSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=100)
     color = serializers.CharField(required=False, allow_blank=True)
+
 
 class CategorySerializer(serializers.Serializer):
     id = serializers.UUIDField(read_only=True)
@@ -41,14 +42,17 @@ class CategorySerializer(serializers.Serializer):
 
     @classmethod
     def from_domain(cls, category: Category):
-        return cls({
-            "id": category.category_id.value,
-            "user_id": category.user_id.value,
-            "name": category.name,
-            "color": category.color,
-            "created_at": category.created_at.value,
-        })
-    
+        return cls(
+            {
+                "id": category.category_id.value,
+                "user_id": category.user_id.value,
+                "name": category.name,
+                "color": category.color,
+                "created_at": category.created_at.value,
+            }
+        )
+
+
 class CalendarEventCreateSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=255)
     start_at = serializers.DateTimeField()
@@ -62,6 +66,7 @@ class CalendarEventCreateSerializer(serializers.Serializer):
         required=False,
         allow_empty=True,
     )
+
 
 class CalendarEventSerializer(serializers.Serializer):
     id = serializers.UUIDField()
@@ -86,7 +91,6 @@ class CalendarEventSerializer(serializers.Serializer):
                 "start_at": event.start_at,
                 "end_at": event.end_at,
                 "created_at": event.created_at.value,
-
                 "estimated_cost": event.estimated_cost,
                 "category_ids": [cid.value for cid in event.category_ids],
             }

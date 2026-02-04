@@ -10,7 +10,8 @@ class CalendarId:
     @staticmethod
     def new():
         return CalendarId(uuid4())
-    
+
+
 @dataclass(frozen=True)
 class UserId:
     value: int
@@ -24,6 +25,7 @@ class CalendarProvider:
     def google() -> "CalendarProvider":
         return CalendarProvider("google")
 
+
 @dataclass(frozen=True)
 class CreatedAt:
     value: datetime
@@ -31,7 +33,8 @@ class CreatedAt:
     @staticmethod
     def now() -> "CreatedAt":
         return CreatedAt(datetime.now(timezone.utc))
-    
+
+
 # Categories
 @dataclass(frozen=True)
 class CategoryId:
@@ -40,6 +43,7 @@ class CategoryId:
     @staticmethod
     def new() -> "CategoryId":
         return CategoryId(uuid4())
+
 
 # Events
 @dataclass(frozen=True)

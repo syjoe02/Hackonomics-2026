@@ -1,17 +1,11 @@
 from django.urls import path
 
 from user_calendar.presentation.views import (
-    CalendarEventCreateAPIView,
-    CalendarEventDeleteAPIView,
-    CalendarEventListAPIView,
-    CategoryCreateAPIView,
-    CategoryDeleteAPIView,
-    CategoryListAPIView,
-    GoogleCalendarOAuthCallbackAPIView,
-    GoogleCalendarOAuthLoginAPIView,
-    MyCalendarAPIView,
-    UserCalendarInitAPIView,
-)
+    CalendarEventCreateAPIView, CalendarEventDeleteAPIView,
+    CalendarEventListAPIView, CategoryCreateAPIView, CategoryDeleteAPIView,
+    CategoryListAPIView, GoogleCalendarOAuthCallbackAPIView,
+    GoogleCalendarOAuthLoginAPIView, MyCalendarAPIView,
+    UserCalendarInitAPIView)
 
 urlpatterns = [
     path("init/", UserCalendarInitAPIView.as_view(), name="calendar-init"),
@@ -33,5 +27,9 @@ urlpatterns = [
     # Calendar Events
     path("events/create/", CalendarEventCreateAPIView.as_view(), name="event-create"),
     path("events/", CalendarEventListAPIView.as_view(), name="event-list"),
-    path("events/<uuid:event_id>/", CalendarEventDeleteAPIView.as_view(), name="event-delete"),
+    path(
+        "events/<uuid:event_id>/",
+        CalendarEventDeleteAPIView.as_view(),
+        name="event-delete",
+    ),
 ]

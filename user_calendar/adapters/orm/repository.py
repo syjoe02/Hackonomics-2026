@@ -3,25 +3,15 @@ from uuid import UUID
 
 from django.core.exceptions import ObjectDoesNotExist
 
-from user_calendar.adapters.orm.models import (
-    CalendarEventModel,
-    CategoryModel,
-    UserCalendarModel,
-)
+from user_calendar.adapters.orm.models import (CalendarEventModel,
+                                               CategoryModel,
+                                               UserCalendarModel)
 from user_calendar.application.ports.repository import (
-    CalendarEventRepository,
-    CategoryRepository,
-    UserCalendarRepository,
-)
+    CalendarEventRepository, CategoryRepository, UserCalendarRepository)
 from user_calendar.domain.entities import CalendarEvent, Category, UserCalendar
-from user_calendar.domain.value_objects import (
-    CalendarId,
-    CalendarProvider,
-    CategoryId,
-    CreatedAt,
-    EventId,
-    UserId,
-)
+from user_calendar.domain.value_objects import (CalendarId, CalendarProvider,
+                                                CategoryId, CreatedAt, EventId,
+                                                UserId)
 
 
 class DjangoUserCalendarRepository(UserCalendarRepository):
@@ -69,6 +59,7 @@ class DjangoUserCalendarRepository(UserCalendarRepository):
             refresh_token=model.refresh_token,
         )
 
+
 class DjangoCategoryRepository(CategoryRepository):
     def save(self, category: Category) -> None:
         CategoryModel.objects.update_or_create(
@@ -81,7 +72,9 @@ class DjangoCategoryRepository(CategoryRepository):
         )
 
     def find_by_user_id(self, user_id: int) -> List[Category]:
-        rows = CategoryModel.objects.filter(user_id=user_id.value).order_by("created_at")
+        rows = CategoryModel.objects.filter(user_id=user_id.value).order_by(
+            "created_at"
+        )
         return [
             Category(
                 category_id=CategoryId(r.id),
@@ -92,7 +85,7 @@ class DjangoCategoryRepository(CategoryRepository):
             )
             for r in rows
         ]
-    
+
     def find_by_id(self, category_id: CategoryId) -> Optional[Category]:
         try:
             r = CategoryModel.objects.get(id=category_id.value)
@@ -109,6 +102,7 @@ class DjangoCategoryRepository(CategoryRepository):
 
     def delete(self, category_id: CategoryId) -> None:
         CategoryModel.objects.filter(id=category_id.value).delete()
+
 
 class DjangoCalendarEventRepository(CalendarEventRepository):
     def save(self, event: CalendarEvent) -> None:
@@ -128,7 +122,9 @@ class DjangoCalendarEventRepository(CalendarEventRepository):
         model.categories.set(cats)
 
     def find_by_user_id(self, user_id: UserId) -> List[CalendarEvent]:
-        rows = CalendarEventModel.objects.filter(user_id=user_id.value).order_by("start_at")
+        rows = CalendarEventModel.objects.filter(user_id=user_id.value).order_by(
+            "start_at"
+        )
         return [
             CalendarEvent(
                 event_id=EventId(r.id),
@@ -145,7 +141,9 @@ class DjangoCalendarEventRepository(CalendarEventRepository):
 
     def find_by_id(self, event_id: EventId) -> Optional[CalendarEvent]:
         try:
-            r = CalendarEventModel.objects.prefetch_related("categories").get(event_id=event_id.value)
+            r = CalendarEventModel.objects.prefetch_related("categories").get(
+                event_id=event_id.value
+            )
         except ObjectDoesNotExist:
             return None
 

@@ -1,7 +1,7 @@
-import google_auth_oauthlib.flow
 from decimal import Decimal
 from uuid import UUID
 
+import google_auth_oauthlib.flow
 from django.conf import settings
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -9,21 +9,17 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from user_calendar.adapters.orm.repository import (
-    DjangoCalendarEventRepository,
-    DjangoCategoryRepository,
-    DjangoUserCalendarRepository,
-)
-from user_calendar.application.services.calendar_event_service import CalendarEventService
+    DjangoCalendarEventRepository, DjangoCategoryRepository,
+    DjangoUserCalendarRepository)
+from user_calendar.application.services.calendar_event_service import \
+    CalendarEventService
 from user_calendar.application.services.category_service import CategoryService
-from user_calendar.application.services.user_calendar_service import UserCalendarService
+from user_calendar.application.services.user_calendar_service import \
+    UserCalendarService
 from user_calendar.domain.value_objects import CategoryId, EventId, UserId
 from user_calendar.presentation.serializers import (
-    CalendarEventCreateSerializer,
-    CalendarEventSerializer,
-    CategoryCreateSerializer,
-    CategorySerializer,
-    UserCalendarSerializer,
-)
+    CalendarEventCreateSerializer, CalendarEventSerializer,
+    CategoryCreateSerializer, CategorySerializer, UserCalendarSerializer)
 from user_calendar.utils.google_oauth import build_google_calendar_flow
 
 
@@ -63,7 +59,7 @@ class GoogleCalendarOAuthCallbackAPIView(APIView):
         authorization_response = request.build_absolute_uri()
         flow.fetch_token(authorization_response=authorization_response)
         credentials = flow.credentials
-        
+
         service = UserCalendarService(DjangoUserCalendarRepository())
         # Stored tokens in UserCalendar
         existing_calendar = service.get_calendar(UserId(request.user.id))
@@ -87,6 +83,7 @@ class MyCalendarAPIView(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 # Categories
 class CategoryCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -95,7 +92,7 @@ class CategoryCreateAPIView(APIView):
         serializer = CategoryCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         service = CategoryService(DjangoCategoryRepository())
-        
+
         category = service.create_category(
             user_id=UserId(request.user.id),
             name=serializer.validated_data["name"],
@@ -122,9 +119,10 @@ class CategoryDeleteAPIView(APIView):
 
     def delete(self, request, category_id: str):
         service = CategoryService(DjangoCategoryRepository())
-        service.delete_category(CategoryId(UUID(category_id)),  UserId(request.user.id))
+        service.delete_category(CategoryId(UUID(category_id)), UserId(request.user.id))
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 # Calendar Events
 class CalendarEventCreateAPIView(APIView):
