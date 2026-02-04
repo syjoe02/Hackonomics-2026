@@ -119,7 +119,7 @@ class CategoryDeleteAPIView(APIView):
 
     def delete(self, request, category_id: str):
         service = CategoryService(DjangoCategoryRepository())
-        service.delete_category(CategoryId(UUID(category_id)), UserId(request.user.id))
+        service.delete_category(CategoryId(category_id), UserId(request.user.id))
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
