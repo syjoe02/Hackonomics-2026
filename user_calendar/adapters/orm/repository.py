@@ -71,7 +71,7 @@ class DjangoCategoryRepository(CategoryRepository):
             },
         )
 
-    def find_by_user_id(self, user_id: int) -> List[Category]:
+    def find_by_user_id(self, user_id: UserId) -> List[Category]:
         rows = CategoryModel.objects.filter(user_id=user_id.value).order_by(
             "created_at"
         )
@@ -142,7 +142,7 @@ class DjangoCalendarEventRepository(CalendarEventRepository):
     def find_by_id(self, event_id: EventId) -> Optional[CalendarEvent]:
         try:
             r = CalendarEventModel.objects.prefetch_related("categories").get(
-                event_id=event_id.value
+                id=event_id.value
             )
         except ObjectDoesNotExist:
             return None

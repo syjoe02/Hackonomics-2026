@@ -174,5 +174,5 @@ class CalendarEventDeleteAPIView(APIView):
             event_repo=DjangoCalendarEventRepository(),
             category_repo=DjangoCategoryRepository(),
         )
-        service.delete_event(EventId(UUID(event_id)), user_id=UserId(request.user.id))
+        service.delete_event(EventId(event_id), user_id=UserId(request.user.id))
         return Response(status=status.HTTP_204_NO_CONTENT)
