@@ -14,7 +14,7 @@ class GoogleOAuthAdapter:
             "client_id": settings.GOOGLE_CLIENT_ID,
             "response_type": "code",
             "scope": "openid email profile",
-            "redirect_uri": settings.GOOGLE_REDIRECT_URI,
+            "redirect_uri": settings.GOOGLE_AUTH_REDIRECT_URI,
             "access_type": "offline",
             "prompt": "consent",
         }
@@ -27,7 +27,7 @@ class GoogleOAuthAdapter:
             "client_secret": settings.GOOGLE_CLIENT_SECRET,
             "code": code,
             "grant_type": "authorization_code",
-            "redirect_uri": settings.GOOGLE_REDIRECT_URI,
+            "redirect_uri": settings.GOOGLE_AUTH_REDIRECT_URI,
         }
         res = requests.post(self.TOKEN_URL, data=data, timeout=5)
         res.raise_for_status()

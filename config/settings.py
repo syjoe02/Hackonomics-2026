@@ -41,6 +41,7 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     # Local apps
+    "user_calendar",
     "exchange",
     "meta",
     "events",
@@ -100,8 +101,13 @@ ACCOUNT_EMAIL_VERIFICATION = "none"
 # Google
 GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET")
-GOOGLE_REDIRECT_URI = env(
-    "GOOGLE_REDIRECT_URI", default="http://localhost:8000/api/auth/google/callback/"
+GOOGLE_AUTH_REDIRECT_URI = env(
+    "GOOGLE_AUTH_REDIRECT_URI",
+    default="http://localhost:8000/api/auth/google/callback/",
+)
+GOOGLE_CALENDAR_REDIRECT_URI = env(
+    "GOOGLE_CALENDAR_REDIRECT_URI",
+    default="http://localhost:8000/api/calendar/oauth/callback/",
 )
 
 

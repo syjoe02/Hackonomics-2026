@@ -38,4 +38,5 @@ urlpatterns = [
     path("api/meta/", include("meta.presentation.urls")),
     path("api/exchange/", include("exchange.presentation.urls")),
     path("api/simulation/", include("simulation.presentation.urls")),
+    path("api/calendar/", include("user_calendar.presentation.urls")),
 ]

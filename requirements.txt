@@ -17,3 +17,8 @@ isort
 flake8
 mypy
 django-stubs
+pytest
+pytest-django
+google-auth-oauthlib
+oauthlib
+requests-oauthlib
