@@ -1,18 +1,24 @@
+from typing import List, Type
+
 from django.conf import settings
 from django.db import transaction
 from django.shortcuts import redirect
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
+from rest_framework.authentication import BaseAuthentication
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from authentication.adapters.django.google_oauth import GoogleOAuthAdapter
-from authentication.application.services.authentication_service import \
-    AuthenticationService
-from authentication.presentation.serializers import (LoginRequestSerializer,
-                                                     SignupRequestSerializer)
+from authentication.application.services.authentication_service import (
+    AuthenticationService,
+)
+from authentication.presentation.serializers import (
+    LoginRequestSerializer,
+    SignupRequestSerializer,
+)
 from common.EmptySerializer import EmptySerializer
 from common.errors.error_codes import ErrorCode
 from common.errors.exceptions import BusinessException
@@ -40,16 +46,17 @@ class LoginAPIView(GenericAPIView):
             {"access_token": tokens["access_token"]}, status=status.HTTP_200_OK
         )
 
+        remember_days = 30 if serializer.validated_data.get("remember_me") else 7
+
+        max_age = 60 * 60 * 24 * remember_days
+
         response.set_cookie(
             key="refresh_token",
             value=tokens["refresh_token"],
             httponly=True,
             secure=settings.IS_PRODUCTION,
             samesite="Strict" if settings.IS_PRODUCTION else "Lax",
-            max_age=60
-            * 60
-            * 24
-            * (30 if serializer.validated_data.get("remember_me") else 7),
+            max_age=max_age,
             path="/",
         )
         return response
@@ -60,8 +67,7 @@ class GoogleLoginAPIView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        adapter = GoogleOAuthAdapter()
-        return redirect(adapter.build_login_url())
+        return redirect(GoogleOAuthAdapter().build_login_url())
 
 
 @extend_schema(exclude=True)
@@ -77,7 +83,8 @@ class GoogleCallbackAPIView(APIView):
         auth_service = AuthenticationService()
         tokens = auth_service.google_login(code)
         # refresh token -> stored in Cookie
-        response = redirect(f"{settings.FRONTEND_URL}/oauth/callback")
+        callback_url = f"{settings.FRONTEND_URL}/oauth/callback"
+        response = redirect(callback_url)
         response.set_cookie(
             key="refresh_token",
             value=tokens["refresh_token"],
@@ -138,7 +145,7 @@ class SignupAPIView(GenericAPIView):
 
 class RefreshAPIView(GenericAPIView):
     serializer_class = EmptySerializer
-    authentication_classes = []
+    authentication_classes: List[Type[BaseAuthentication]] = []
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -148,7 +155,8 @@ class RefreshAPIView(GenericAPIView):
         tokens = auth_service.refresh(refresh_token)
 
         return Response(
-            {"access_token": tokens["access_token"]}, status=status.HTTP_200_OK
+            {"access_token": tokens["access_token"]},
+            status=status.HTTP_200_OK,
         )
 
 

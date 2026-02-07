@@ -5,10 +5,15 @@ from datetime import datetime
 from decimal import Decimal
 from typing import List, Optional
 
-from .events import (CalendarEventCreated, UserCalendarConnected,
-                     UserCalendarCreated)
-from .value_objects import (CalendarId, CalendarProvider, CategoryId,
-                            CreatedAt, EventId, UserId)
+from .events import CalendarEventCreated, UserCalendarConnected, UserCalendarCreated
+from .value_objects import (
+    CalendarId,
+    CalendarProvider,
+    CategoryId,
+    CreatedAt,
+    EventId,
+    UserId,
+)
 
 
 @dataclass

@@ -6,7 +6,9 @@ from uuid import UUID
 from common.errors.error_codes import ErrorCode
 from common.errors.exceptions import BusinessException
 from user_calendar.application.ports.repository import (
-    CalendarEventRepository, CategoryRepository)
+    CalendarEventRepository,
+    CategoryRepository,
+)
 from user_calendar.domain.entities import CalendarEvent
 from user_calendar.domain.value_objects import CategoryId, EventId, UserId
 

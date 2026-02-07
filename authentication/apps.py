@@ -6,4 +6,4 @@ class AuthenticationConfig(AppConfig):
     name = "authentication"
 
     def ready(self):
-        import authentication.adapters.django.jwt_authentication_schema
+        import authentication.adapters.django.jwt_authentication_schema  # noqa: F401

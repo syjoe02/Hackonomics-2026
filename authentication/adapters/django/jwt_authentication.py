@@ -3,8 +3,9 @@ from types import SimpleNamespace
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 
-from authentication.application.services.authentication_service import \
-    AuthenticationService
+from authentication.application.services.authentication_service import (
+    AuthenticationService,
+)
 
 
 class JWTAuthentication(BaseAuthentication):

@@ -1,7 +1,9 @@
-from accounts.application.ports.event_publisher import \
-    DomainEventPublisher as AccountPort
-from events.application.publishers.domain_event_publisher import \
-    DomainEventPublisher as CorePublisher
+from accounts.application.ports.event_publisher import (
+    DomainEventPublisher as AccountPort,
+)
+from events.application.publishers.domain_event_publisher import (
+    DomainEventPublisher as CorePublisher,
+)
 
 
 class AccountDomainEventPublisher(AccountPort):

@@ -1,7 +1,6 @@
 from django.urls import path
 
-from exchange.presentation.views import (ExchangeHistoryAPIView,
-                                         UsdToCurrencyAPIView)
+from exchange.presentation.views import ExchangeHistoryAPIView, UsdToCurrencyAPIView
 
 urlpatterns = [
     path(

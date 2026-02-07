@@ -6,8 +6,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from common.EmptySerializer import EmptySerializer
-from exchange.application.services import (ExchangeHistoryService,
-                                           ExchangeRateService)
+from exchange.application.services import ExchangeHistoryService, ExchangeRateService
 from exchange.presentation.serializers import ExchangeRateResponseSerializer
 
 

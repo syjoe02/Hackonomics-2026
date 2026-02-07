@@ -41,4 +41,4 @@ class CategoryService:
         self.repository.delete(category_id)
 
     def list_categories(self, user_id: UserId) -> List[Category]:
-        return self.repository.find_by_user_id(user_id)
+        return self.repository.find_by_user_id(user_id.value)

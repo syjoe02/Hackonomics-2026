@@ -1,4 +1,5 @@
 from decimal import ROUND_DOWN, Decimal
+from typing import Any, Dict
 
 from rest_framework import serializers
 
@@ -13,7 +14,15 @@ class AccountUpdateSerializer(serializers.Serializer):
         max_digits=15, decimal_places=2, min_value=Decimal("0")
     )
 
-    def validate(self, attrs):
+    def _get_country_or_raise(self, country_code: str) -> Dict[str, Any]:
+        try:
+            return CountryService().get_country(country_code)
+        except Exception:
+            raise serializers.ValidationError(
+                {"country_code": f"Invalid country code: {country_code}"}
+            )
+
+    def validate(self, attrs: Dict[str, Any]) -> Dict[str, Any]:
         country_code = attrs["country_code"].upper()
         currency = attrs["currency"].upper()
         # Decimal type
@@ -23,21 +32,20 @@ class AccountUpdateSerializer(serializers.Serializer):
         annual_income = annual_income.quantize(Decimal("0.01"), rounding=ROUND_DOWN)
         monthly_amount = monthly_amount.quantize(Decimal("0.01"), rounding=ROUND_DOWN)
 
-        try:
-            country = CountryService().get_country(country_code)
-        except Exception:
-            raise serializers.ValidationError(
-                {"country_code": f"Invalid country code: {country_code}"}
-            )
-        valid_currencies = [c.upper() for c in country["currencies"]]
+        country = self._get_country_or_raise(country_code)
+        valid_currencies = [c.upper() for c in country.get("currencies", [])]
 
         if currency not in valid_currencies:
             raise serializers.ValidationError(
-                {"currency": f"{currency} is not valid for country {country_code}"}
+                {"currency": (f"{currency} is not valid for country {country_code}")}
             )
 
-        attrs["country_code"] = country_code
-        attrs["currency"] = currency
-        attrs["annual_income"] = annual_income
-        attrs["monthly_investable_amount"] = monthly_amount
+        attrs.update(
+            {
+                "country_code": country_code,
+                "currency": currency,
+                "annual_income": annual_income,
+                "monthly_investable_amount": monthly_amount,
+            }
+        )
         return attrs

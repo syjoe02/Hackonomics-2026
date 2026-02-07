@@ -1,4 +1,5 @@
 from datetime import date
+from typing import List, TypedDict
 
 import requests
 from dateutil.relativedelta import relativedelta
@@ -11,7 +12,7 @@ from exchange.infra.frankfurter_client import FrankfurterClient
 
 class ExchangeRateService:
     # default = 1 USD
-    def __init__(self):
+    def __init__(self) -> None:
         self.client = ExchangeRateClient()
 
     def get_usd_to_currency(self, currency: str) -> float:
@@ -20,8 +21,13 @@ class ExchangeRateService:
                 target_currency=currency,
                 base="USD",
             )
-        except ValueError as e:
-            raise BusinessException(ErrorCode.INVALID_PARAMETER, str(e))
+        except ValueError:
+            raise BusinessException(ErrorCode.INVALID_PARAMETER)
+
+
+class _HistoryRow(TypedDict):
+    date: str
+    rate: float
 
 
 class ExchangeHistoryService:
@@ -32,10 +38,12 @@ class ExchangeHistoryService:
         "2y": 24,
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.client = FrankfurterClient()
 
-    def get_usd_history_until_today(self, currency: str, period: int):
+    def get_usd_history_until_today(
+        self, currency: str, period: str
+    ) -> List[_HistoryRow]:
         if not currency:
             raise BusinessException(ErrorCode.INVALID_PARAMETER)
 
@@ -62,8 +70,13 @@ class ExchangeHistoryService:
         if not rates:
             raise BusinessException(ErrorCode.DATA_NOT_FOUND)
 
-        history = []
+        history: List[_HistoryRow] = []
         for d in sorted(rates.keys()):
+            day_rates = rates[d]
+
+            if currency not in day_rates:
+                raise BusinessException(ErrorCode.INVALID_RESPONSE)
+
             history.append(
                 {
                     "date": d,
