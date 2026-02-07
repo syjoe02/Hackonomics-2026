@@ -123,10 +123,10 @@ class CategoryListAPIView(APIView):
 class CategoryDeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def delete(self, request, category_id: str):
+    def delete(self, request, category_id: UUID):
         service = CategoryService(DjangoCategoryRepository())
         service.delete_category(
-            CategoryId(UUID(category_id)),
+            CategoryId(category_id),
             UserId(request.user.id),
         )
 
