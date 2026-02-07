@@ -1,6 +1,6 @@
 from datetime import datetime
 from decimal import Decimal, getcontext
-from typing import Dict, List
+from typing import List, TypedDict
 
 from accounts.application.ports.repository import AccountRepository
 from common.errors.error_codes import ErrorCode
@@ -9,6 +9,11 @@ from exchange.application.services import ExchangeHistoryService
 from simulation.domain.entities import SimulationResult
 
 getcontext().prec = 28
+
+
+class RatePoint(TypedDict):
+    date: str
+    rate: float
 
 
 class CompareInvestmentUseCase:
@@ -30,17 +35,18 @@ class CompareInvestmentUseCase:
         user_id: int,
         period: str,
         deposit_rate: float,
-    ) -> dict:
-
+    ) -> SimulationResult:
         if period not in self.PERIOD_MAP:
             raise BusinessException(ErrorCode.INVALID_PARAMETER)
 
         if deposit_rate < 0:
             raise BusinessException(ErrorCode.INVALID_PARAMETER)
-        deposit_rate = Decimal(str(deposit_rate))
 
+        deposit_rate_d = Decimal(str(deposit_rate))
         account = self.account_repository.find_by_user_id(user_id)
         if not account:
+            raise BusinessException(ErrorCode.DATA_NOT_FOUND)
+        if account.country is None:
             raise BusinessException(ErrorCode.DATA_NOT_FOUND)
 
         monthly_amount = Decimal(str(account.monthly_investable_amount))
@@ -48,6 +54,7 @@ class CompareInvestmentUseCase:
             raise BusinessException(ErrorCode.INVALID_PARAMETER)
 
         currency = account.country.currency.upper()
+        months = self.PERIOD_MAP[period]
 
         history = self.exchange_history_service.get_usd_history_until_today(
             currency=currency,
@@ -74,7 +81,9 @@ class CompareInvestmentUseCase:
         last_rate = Decimal(str(history[-1]["rate"]))
         usd_final = total_usd * last_rate
         # Fixed deposit
-        deposit_final = total_invested * (Decimal("1") + deposit_rate / Decimal("100"))
+        deposit_final = total_invested * (
+            Decimal("1") + deposit_rate_d / Decimal("100")
+        )
 
         if usd_final > deposit_final:
             winner = "usd"
@@ -86,23 +95,22 @@ class CompareInvestmentUseCase:
         return SimulationResult(
             currency=currency,
             period=period,
-            monthly_amount=monthly_amount,
-            deposit_rate=deposit_rate,
-            total_invested=total_invested,
-            usd_final=usd_final,
-            deposit_final=deposit_final,
+            monthly_amount=float(monthly_amount),
+            deposit_rate=float(deposit_rate_d),
+            total_invested=float(total_invested),
+            usd_final=float(usd_final),
+            deposit_final=float(deposit_final),
             winner=winner,
-            diff_percent=diff,
+            diff_percent=float(diff),
             summary=self._make_summary(winner, diff, currency),
         )
 
     def _extract_monthly_rates(
         self,
-        history: List[Dict],
+        history: List[RatePoint],
         months: int,
-    ) -> List[Dict]:
-
-        monthly = []
+    ) -> List[RatePoint]:
+        monthly: List[RatePoint] = []
         seen = set()
 
         for h in history:
@@ -119,7 +127,7 @@ class CompareInvestmentUseCase:
         return monthly
 
     def _make_summary(self, winner: str, diff: Decimal, currency: str) -> str:
-        diff = round(diff, 2)
+        diff = diff.quantize(Decimal("0.01"))
 
         if winner == "usd":
             return (

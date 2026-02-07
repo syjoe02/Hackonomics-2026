@@ -22,3 +22,5 @@ pytest-django
 google-auth-oauthlib
 oauthlib
 requests-oauthlib
+types-requests
+types-python-dateutil

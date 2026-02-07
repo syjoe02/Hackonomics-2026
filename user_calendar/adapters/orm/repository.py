@@ -1,17 +1,26 @@
 from typing import List, Optional
-from uuid import UUID
 
 from django.core.exceptions import ObjectDoesNotExist
 
-from user_calendar.adapters.orm.models import (CalendarEventModel,
-                                               CategoryModel,
-                                               UserCalendarModel)
+from user_calendar.adapters.orm.models import (
+    CalendarEventModel,
+    CategoryModel,
+    UserCalendarModel,
+)
 from user_calendar.application.ports.repository import (
-    CalendarEventRepository, CategoryRepository, UserCalendarRepository)
+    CalendarEventRepository,
+    CategoryRepository,
+    UserCalendarRepository,
+)
 from user_calendar.domain.entities import CalendarEvent, Category, UserCalendar
-from user_calendar.domain.value_objects import (CalendarId, CalendarProvider,
-                                                CategoryId, CreatedAt, EventId,
-                                                UserId)
+from user_calendar.domain.value_objects import (
+    CalendarId,
+    CalendarProvider,
+    CategoryId,
+    CreatedAt,
+    EventId,
+    UserId,
+)
 
 
 class DjangoUserCalendarRepository(UserCalendarRepository):
@@ -71,10 +80,8 @@ class DjangoCategoryRepository(CategoryRepository):
             },
         )
 
-    def find_by_user_id(self, user_id: UserId) -> List[Category]:
-        rows = CategoryModel.objects.filter(user_id=user_id.value).order_by(
-            "created_at"
-        )
+    def find_by_user_id(self, user_id: int) -> List[Category]:
+        rows = CategoryModel.objects.filter(user_id=user_id).order_by("created_at")
         return [
             Category(
                 category_id=CategoryId(r.id),

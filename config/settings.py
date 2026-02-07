@@ -154,7 +154,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:5173",
 ]
 
-## httpOnly + samesite for refreshToken
+# httpOnly + samesite for refreshToken
 SESSION_COOKIE_SECURE = IS_PRODUCTION
 CSRF_COOKIE_SECURE = IS_PRODUCTION
 

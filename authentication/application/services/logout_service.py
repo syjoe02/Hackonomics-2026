@@ -1,6 +1,3 @@
-import requests
-from django.conf import settings
-
 from authentication.adapters.django.auth_service import CentralAuthAdapter
 from common.errors.error_codes import ErrorCode
 from common.errors.exceptions import BusinessException

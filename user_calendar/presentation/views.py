@@ -1,25 +1,28 @@
-from decimal import Decimal
 from uuid import UUID
 
-import google_auth_oauthlib.flow
-from django.conf import settings
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from user_calendar.adapters.orm.repository import (
-    DjangoCalendarEventRepository, DjangoCategoryRepository,
-    DjangoUserCalendarRepository)
-from user_calendar.application.services.calendar_event_service import \
-    CalendarEventService
+    DjangoCalendarEventRepository,
+    DjangoCategoryRepository,
+    DjangoUserCalendarRepository,
+)
+from user_calendar.application.services.calendar_event_service import (
+    CalendarEventService,
+)
 from user_calendar.application.services.category_service import CategoryService
-from user_calendar.application.services.user_calendar_service import \
-    UserCalendarService
+from user_calendar.application.services.user_calendar_service import UserCalendarService
 from user_calendar.domain.value_objects import CategoryId, EventId, UserId
 from user_calendar.presentation.serializers import (
-    CalendarEventCreateSerializer, CalendarEventSerializer,
-    CategoryCreateSerializer, CategorySerializer, UserCalendarSerializer)
+    CalendarEventCreateSerializer,
+    CalendarEventSerializer,
+    CategoryCreateSerializer,
+    CategorySerializer,
+    UserCalendarSerializer,
+)
 from user_calendar.utils.google_oauth import build_google_calendar_flow
 
 
@@ -122,7 +125,10 @@ class CategoryDeleteAPIView(APIView):
 
     def delete(self, request, category_id: str):
         service = CategoryService(DjangoCategoryRepository())
-        service.delete_category(CategoryId(category_id), UserId(request.user.id))
+        service.delete_category(
+            CategoryId(UUID(category_id)),
+            UserId(request.user.id),
+        )
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -174,5 +180,8 @@ class CalendarEventDeleteAPIView(APIView):
             event_repo=DjangoCalendarEventRepository(),
             category_repo=DjangoCategoryRepository(),
         )
-        service.delete_event(EventId(event_id), user_id=UserId(request.user.id))
+        service.delete_event(
+            EventId(UUID(event_id)),
+            user_id=UserId(request.user.id),
+        )
         return Response(status=status.HTTP_204_NO_CONTENT)

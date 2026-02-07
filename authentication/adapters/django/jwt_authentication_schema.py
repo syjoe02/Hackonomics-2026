@@ -13,5 +13,8 @@ class JWTAuthenticationScheme(OpenApiAuthenticationExtension):
             "type": "http",
             "scheme": "bearer",
             "bearerFormat": "JWT",
-            "description": "JWT Authorization header using the Bearer scheme. Example: 'Bearer <token>'",
+            "description": (
+                "JWT Authorization header using the Bearer scheme. "
+                "Example: 'Bearer <token>'"
+            ),
         }

@@ -3,15 +3,14 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from accounts.adapters.events.event_publisher import \
-    AccountDomainEventPublisher
+from accounts.adapters.events.event_publisher import AccountDomainEventPublisher
 from accounts.adapters.orm.repository import DjangoAccountRepository
 from accounts.application.dto import AccountUpdateCommand
 from accounts.application.usecases.get_account_usecase import GetAccountUseCase
-from accounts.application.usecases.get_exchange_rate_usecase import \
-    GetExchangeRateUseCase
-from accounts.application.usecases.update_account_usecase import \
-    UpdateAccountUseCase
+from accounts.application.usecases.get_exchange_rate_usecase import (
+    GetExchangeRateUseCase,
+)
+from accounts.application.usecases.update_account_usecase import UpdateAccountUseCase
 from accounts.presentation.serializers import AccountUpdateSerializer
 from common.EmptySerializer import EmptySerializer
 from events.adapters.outbox_repository import OutboxEventRepository

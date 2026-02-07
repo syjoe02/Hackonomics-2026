@@ -14,15 +14,20 @@
         "code": "MissingRequiredField",
         "message": "Required field is missing"
     },
-    "METHOD_NOT_ALLOWED": {
-        "status": 405,
-        "code": "MethodNotAllowed",
-        "message": "HTTP method not allowed"
+    "PASSWORD_TOO_SHORT": {
+        "status": 400,
+        "code": "PasswordTooShort",
+        "message": "Password is too short"
     },
-    "UNSUPPORTED_MEDIA_TYPE": {
-        "status": 415,
-        "code": "UnsupportedMediaType",
-        "message": "Unsupported media type"
+    "PASSWORD_POLICY_VIOLATION": {
+        "status": 400,
+        "code": "PasswordPolicyViolation",
+        "message": "Password does not satisfy security policy"
+    },
+    "GOOGLE_AUTH_CODE_MISSING": {
+        "status": 400,
+        "code": "GoogleAuthCodeMissing",
+        "message": "Google authorization code is missing"
     },
     "INVALID_CREDENTIALS": {
         "status": 401,
@@ -33,16 +38,6 @@
         "status": 401,
         "code": "Unauthorized",
         "message": "Unauthorized"
-    },
-    "FORBIDDEN": {
-        "status": 403,
-        "code": "Forbidden",
-        "message": "Access is forbidden"
-    },
-    "ACCESS_DENIED": {
-        "status": 403,
-        "code": "AccessDenied",
-        "message": "You do not have permission"
     },
     "TOKEN_INVALID": {
         "status": 401,
@@ -64,25 +59,20 @@
         "code": "RefreshTokenInvalid",
         "message": "Invalid refresh token"
     },
-    "DATA_NOT_FOUND": {
-        "status": 404,
-        "code": "DataNotFound",
-        "message": "Requested resource not found"
+    "GOOGLE_AUTH_FAILED": {
+        "status": 401,
+        "code": "GoogleAuthFailed",
+        "message": "Google authentication failed"
     },
-    "DUPLICATE_ENTRY": {
-        "status": 409,
-        "code": "DuplicateEntry",
-        "message": "Resource already exists"
+    "FORBIDDEN": {
+        "status": 403,
+        "code": "Forbidden",
+        "message": "Access is forbidden"
     },
-    "DATA_INTEGRITY_VIOLATION": {
-        "status": 409,
-        "code": "DataIntegrityViolation",
-        "message": "Data integrity violation"
-    },
-    "USER_NOT_FOUND": {
-        "status": 404,
-        "code": "UserNotFound",
-        "message": "User not found"
+    "ACCESS_DENIED": {
+        "status": 403,
+        "code": "AccessDenied",
+        "message": "You do not have permission"
     },
     "USER_BLOCKED": {
         "status": 403,
@@ -99,15 +89,65 @@
         "code": "UserDeleted",
         "message": "User account is deleted"
     },
-    "PASSWORD_TOO_SHORT": {
-        "status": 400,
-        "code": "PasswordTooShort",
-        "message": "Password is too short"
+    "DATA_NOT_FOUND": {
+        "status": 404,
+        "code": "DataNotFound",
+        "message": "Requested resource not found"
     },
-    "PASSWORD_POLICY_VIOLATION": {
-        "status": 400,
-        "code": "PasswordPolicyViolation",
-        "message": "Password does not satisfy security policy"
+    "USER_NOT_FOUND": {
+        "status": 404,
+        "code": "UserNotFound",
+        "message": "User not found"
+    },
+    "FILE_NOT_FOUND": {
+        "status": 404,
+        "code": "FileNotFound",
+        "message": "File not found"
+    },
+    "USER_CALENDAR_NOT_FOUND": {
+        "status": 404,
+        "code": "UserCalendarNotFound",
+        "message": "User calendar not found"
+    },
+    "METHOD_NOT_ALLOWED": {
+        "status": 405,
+        "code": "MethodNotAllowed",
+        "message": "HTTP method not allowed"
+    },
+    "DUPLICATE_ENTRY": {
+        "status": 409,
+        "code": "DuplicateEntry",
+        "message": "Resource already exists"
+    },
+    "DATA_INTEGRITY_VIOLATION": {
+        "status": 409,
+        "code": "DataIntegrityViolation",
+        "message": "Data integrity violation"
+    },
+    "FILE_TOO_LARGE": {
+        "status": 413,
+        "code": "FileTooLarge",
+        "message": "Uploaded file is too large"
+    },
+    "UNSUPPORTED_MEDIA_TYPE": {
+        "status": 415,
+        "code": "UnsupportedMediaType",
+        "message": "Unsupported media type"
+    },
+    "FILE_UPLOAD_FAILED": {
+        "status": 500,
+        "code": "FileUploadFailed",
+        "message": "File upload failed"
+    },
+    "INTERNAL_ERROR": {
+        "status": 500,
+        "code": "InternalError",
+        "message": "Internal server error"
+    },
+    "NOT_IMPLEMENTED": {
+        "status": 501,
+        "code": "NotImplemented",
+        "message": "Feature not implemented"
     },
     "EXTERNAL_API_FAILED": {
         "status": 502,
@@ -119,54 +159,19 @@
         "code": "InvalidResponse",
         "message": "Invalid response from external service"
     },
-    "TIMEOUT": {
-        "status": 504,
-        "code": "Timeout",
-        "message": "External service timeout"
+    "GOOGLE_USERINFO_FAILED": {
+        "status": 502,
+        "code": "GoogleUserinfoFailed",
+        "message": "Failed to fetch user info from Google"
     },
     "SERVICE_UNAVAILABLE": {
         "status": 503,
         "code": "ServiceUnavailable",
         "message": "Service temporarily unavailable"
     },
-    "GOOGLE_AUTH_CODE_MISSING": {
-        "status": 400,
-        "code": "GoogleAuthCodeMissing",
-        "message": "Google authorization code is missing"
-    },
-    "GOOGLE_AUTH_FAILED": {
-        "status": 401,
-        "code": "GoogleAuthFailed",
-        "message": "Google authentication failed"
-    },
-    "GOOGLE_USERINFO_FAILED": {
-        "status": 502,
-        "code": "GoogleUserinfoFailed",
-        "message": "Failed to fetch user info from Google"
-    },
-    "FILE_UPLOAD_FAILED": {
-        "status": 500,
-        "code": "FileUploadFailed",
-        "message": "File upload failed"
-    },
-    "FILE_NOT_FOUND": {
-        "status": 404,
-        "code": "FileNotFound",
-        "message": "File not found"
-    },
-    "FILE_TOO_LARGE": {
-        "status": 413,
-        "code": "FileTooLarge",
-        "message": "Uploaded file is too large"
-    },
-    "INTERNAL_ERROR": {
-        "status": 500,
-        "code": "InternalError",
-        "message": "Internal server error"
-    },
-    "NOT_IMPLEMENTED": {
-        "status": 501,
-        "code": "NotImplemented",
-        "message": "Feature not implemented"
+    "TIMEOUT": {
+        "status": 504,
+        "code": "Timeout",
+        "message": "External service timeout"
     }
 }

@@ -1,10 +1,14 @@
 from django.urls import path
 
-from authentication.presentation.views import (GoogleCallbackAPIView,
-                                               GoogleLoginAPIView,
-                                               LoginAPIView, LogoutAPIView,
-                                               MeAPIView, RefreshAPIView,
-                                               SignupAPIView)
+from authentication.presentation.views import (
+    GoogleCallbackAPIView,
+    GoogleLoginAPIView,
+    LoginAPIView,
+    LogoutAPIView,
+    MeAPIView,
+    RefreshAPIView,
+    SignupAPIView,
+)
 
 urlpatterns = [
     path("login/", LoginAPIView.as_view()),
