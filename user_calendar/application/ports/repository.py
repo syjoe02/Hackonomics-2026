@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import List, Optional
+from uuid import UUID
 
 from user_calendar.domain.entities import CalendarEvent, Category, UserCalendar
-from user_calendar.domain.value_objects import CalendarId, EventId, UserId
+from user_calendar.domain.value_objects import CalendarId, CategoryId, EventId, UserId
 
 
 class UserCalendarRepository(ABC):
@@ -33,11 +34,11 @@ class CategoryRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def find_by_id(self, category_id) -> Optional[Category]:
+    def find_by_id(self, category_id: CategoryId) -> Optional[Category]:
         raise NotImplementedError
 
     @abstractmethod
-    def delete(self, category_id) -> None:
+    def delete(self, category_id: CategoryId) -> None:
         raise NotImplementedError
 
 
@@ -45,6 +46,14 @@ class CalendarEventRepository(ABC):
 
     @abstractmethod
     def save(self, event: CalendarEvent) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def update(
+        self,
+        event: CalendarEvent,
+        category_ids: list[UUID],
+    ) -> None:
         raise NotImplementedError
 
     @abstractmethod

@@ -4,6 +4,7 @@ from user_calendar.presentation.views import (
     CalendarEventCreateAPIView,
     CalendarEventDeleteAPIView,
     CalendarEventListAPIView,
+    CalendarEventUpdateAPIView,
     CategoryCreateAPIView,
     CategoryDeleteAPIView,
     CategoryListAPIView,
@@ -33,6 +34,11 @@ urlpatterns = [
     # Calendar Events
     path("events/create/", CalendarEventCreateAPIView.as_view(), name="event-create"),
     path("events/", CalendarEventListAPIView.as_view(), name="event-list"),
+    path(
+        "events/<uuid:event_id>/",
+        CalendarEventUpdateAPIView.as_view(),
+        name="event-update",
+    ),
     path(
         "events/<uuid:event_id>/",
         CalendarEventDeleteAPIView.as_view(),

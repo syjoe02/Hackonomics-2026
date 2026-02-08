@@ -58,6 +58,33 @@ class CalendarEventService:
     def list_events(self, user_id: UserId) -> List[CalendarEvent]:
         return self.event_repo.find_by_user_id(user_id)
 
+    def update_event(
+        self,
+        event_id: EventId,
+        user_id: UserId,
+        title: str,
+        start_at: datetime,
+        end_at: datetime,
+        estimated_cost: Optional[Decimal],
+        category_ids: list[UUID],
+    ):
+        event = self.event_repo.find_by_id(event_id)
+        if not event:
+            raise BusinessException(ErrorCode.DATA_NOT_FOUND)
+        if event.user_id.value != user_id.value:
+            raise BusinessException(ErrorCode.FORBIDDEN)
+        if not title or not title.strip():
+            raise BusinessException(ErrorCode.INVALID_PARAMETER)
+        if end_at <= start_at:
+            raise BusinessException(ErrorCode.INVALID_PARAMETER)
+
+        event.title = title
+        event.start_at = start_at
+        event.end_at = end_at
+        event.estimated_cost = estimated_cost
+
+        self.event_repo.update(event, category_ids)
+
     def delete_event(self, event_id: EventId, user_id: UserId) -> None:
         existing = self.event_repo.find_by_id(event_id)
         if existing is None:

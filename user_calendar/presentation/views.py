@@ -172,16 +172,41 @@ class CalendarEventListAPIView(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
+class CalendarEventUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, event_id: UUID):
+        serializer = CalendarEventCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        service = CalendarEventService(
+            event_repo=DjangoCalendarEventRepository(),
+            category_repo=DjangoCategoryRepository(),
+        )
+
+        service.update_event(
+            event_id=EventId(event_id),
+            user_id=UserId(request.user.id),
+            title=serializer.validated_data["title"],
+            start_at=serializer.validated_data["start_at"],
+            end_at=serializer.validated_data["end_at"],
+            estimated_cost=serializer.validated_data.get("estimated_cost"),
+            category_ids=serializer.validated_data.get("category_ids", []),
+        )
+
+        return Response(status=status.HTTP_200_OK)
+
+
 class CalendarEventDeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def delete(self, request, event_id: str):
+    def delete(self, request, event_id: UUID):
         service = CalendarEventService(
             event_repo=DjangoCalendarEventRepository(),
             category_repo=DjangoCategoryRepository(),
         )
         service.delete_event(
-            EventId(UUID(event_id)),
+            EventId(event_id),
             user_id=UserId(request.user.id),
         )
         return Response(status=status.HTTP_204_NO_CONTENT)
