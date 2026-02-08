@@ -172,7 +172,7 @@ class CalendarEventListAPIView(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
-class CalendarEventUpdateAPIView(APIView):
+class CalendarEventDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def put(self, request, event_id: UUID):
@@ -196,17 +196,15 @@ class CalendarEventUpdateAPIView(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
-
-class CalendarEventDeleteAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
     def delete(self, request, event_id: UUID):
         service = CalendarEventService(
             event_repo=DjangoCalendarEventRepository(),
             category_repo=DjangoCategoryRepository(),
         )
+
         service.delete_event(
             EventId(event_id),
             user_id=UserId(request.user.id),
         )
+
         return Response(status=status.HTTP_204_NO_CONTENT)
