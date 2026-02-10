@@ -1,4 +1,5 @@
 from typing import List, Optional
+from uuid import UUID
 
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -164,6 +165,17 @@ class DjangoCalendarEventRepository(CalendarEventRepository):
             estimated_cost=r.estimated_cost,
             category_ids=[CategoryId(c.id) for c in r.categories.all()],
         )
+
+    def update(self, event: CalendarEvent, category_ids: list[UUID]) -> None:
+        m = CalendarEventModel.objects.get(id=event.event_id.value)
+
+        m.title = event.title
+        m.start_at = event.start_at
+        m.end_at = event.end_at
+        m.estimated_cost = event.estimated_cost
+        m.save()
+
+        m.categories.set(category_ids)
 
     def delete(self, event_id: EventId) -> None:
         CalendarEventModel.objects.filter(id=event_id.value).delete()

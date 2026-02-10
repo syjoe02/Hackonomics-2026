@@ -2,7 +2,7 @@ from django.urls import path
 
 from user_calendar.presentation.views import (
     CalendarEventCreateAPIView,
-    CalendarEventDeleteAPIView,
+    CalendarEventDetailAPIView,
     CalendarEventListAPIView,
     CategoryCreateAPIView,
     CategoryDeleteAPIView,
@@ -35,7 +35,7 @@ urlpatterns = [
     path("events/", CalendarEventListAPIView.as_view(), name="event-list"),
     path(
         "events/<uuid:event_id>/",
-        CalendarEventDeleteAPIView.as_view(),
-        name="event-delete",
+        CalendarEventDetailAPIView.as_view(),
+        name="event-detail",
     ),
 ]

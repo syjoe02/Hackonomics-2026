@@ -70,7 +70,6 @@ class CalendarEventCreateSerializer(serializers.Serializer):
 
 class CalendarEventSerializer(serializers.Serializer):
     id = serializers.UUIDField()
-    user_id = serializers.IntegerField()
     title = serializers.CharField()
     start_at = serializers.DateTimeField()
     end_at = serializers.DateTimeField()
@@ -86,7 +85,6 @@ class CalendarEventSerializer(serializers.Serializer):
         return cls(
             {
                 "id": event.event_id.value,
-                "user_id": event.user_id.value,
                 "title": event.title,
                 "start_at": event.start_at,
                 "end_at": event.end_at,
