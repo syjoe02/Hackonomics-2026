@@ -5,10 +5,16 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from user_calendar.adapters.gemini.calendar_advisor_adapter import (
+    GeminiCalendarAdvisorAdapter,
+)
 from user_calendar.adapters.orm.repository import (
     DjangoCalendarEventRepository,
     DjangoCategoryRepository,
     DjangoUserCalendarRepository,
+)
+from user_calendar.application.services.calendar_advisor_service import (
+    CalendarAdvisorService,
 )
 from user_calendar.application.services.calendar_event_service import (
     CalendarEventService,
@@ -208,3 +214,25 @@ class CalendarEventDetailAPIView(APIView):
         )
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CalendarAdviceView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        document_text = request.data.get("document_text")
+
+        service = CalendarAdvisorService(
+            event_repo=DjangoCalendarEventRepository(),
+            advisor=GeminiCalendarAdvisorAdapter(),
+        )
+
+        advice = service.analyze_document_and_suggest(
+            user_id=UserId(request.user.id),
+            document_text=document_text,
+        )
+
+        return Response(
+            {"advice": advice},
+            status=status.HTTP_200_OK,
+        )

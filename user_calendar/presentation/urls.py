@@ -1,6 +1,7 @@
 from django.urls import path
 
 from user_calendar.presentation.views import (
+    CalendarAdviceView,
     CalendarEventCreateAPIView,
     CalendarEventDetailAPIView,
     CalendarEventListAPIView,
@@ -37,5 +38,10 @@ urlpatterns = [
         "events/<uuid:event_id>/",
         CalendarEventDetailAPIView.as_view(),
         name="event-detail",
+    ),
+    path(
+        "advisor/",
+        CalendarAdviceView.as_view(),
+        name="calendar-advisor",
     ),
 ]
