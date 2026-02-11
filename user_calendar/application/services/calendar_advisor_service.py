@@ -32,28 +32,33 @@ class CalendarAdvisorService:
 
         if not account:
             raise BusinessException(ErrorCode.DATA_NOT_FOUND)
-
-        country = account.country
-        if not country:
+        
+        if not account.country:
             raise BusinessException(ErrorCode.DATA_NOT_FOUND)
-        country_context = f"{country.code} ({country.currency})"
+        country_context = f"{account.country.code} ({account.country.currency})"
 
         serialized_events = [
             CalendarEventSerializer.from_domain(e).data for e in events
         ]
 
-        events_text = json.dumps(
-            serialized_events,
-            indent=2,
-            ensure_ascii=False,
-        )
+        formatted_events_list = []
+        for e in events:
+            # explicitly pull out the ID and Title so they are "unmissable"
+            formatted_events_list.append(
+                f"- EVENT_ID: {e.event_id.value} | TITLE: {e.title} | START: {e.start_at}"
+            )
+        
+        events_text = "\n".join(formatted_events_list)
         # Call Gemini
         try:
-            return self.advisor.analyze_events(
+            result = self.advisor.analyze_events(
                 events_text=events_text,
                 document_text=document_text,
                 country_context=country_context,
             )
+            print("=== GEMINI RAW OUTPUT ===")
+            print(result)
+            return result
         except Exception as e:
             err_msg = str(e)
 

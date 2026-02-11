@@ -21,19 +21,33 @@ class GeminiCalendarAdvisorAdapter(CalendarAdvisorPort):
         events_text: str,
         document_text: str,
         country_context: str,
-    ) -> str:
-
-        events_lines = events_text.split("\n")
-        events_preview = "\n".join(events_lines[: self.MAX_EVENTS])
-
+    ) -> str:    
         prompt = f"""
         COUNTRY CONTEXT: {country_context}
-        USER EVENTS: {events_preview}
-        NEW DOCUMENT/URL: {document_text}
 
-        ASK:
-        - Analyze how this document/news impacts the user's events.
-        - Return a JSON array of suggestions.
+        USER'S CALENDAR EVENTS:
+        {events_text}
+
+        NEWS ARTICLE / DOCUMENT:
+        {document_text}
+
+        TASK:
+        1. Identify EVERY event in the list above that could be impacted by the news.
+        2. If multiple events share the same impact (e.g., 'Oil Price Increase' affects all driving-related events), you MUST group all their IDs together.
+        3. Return a JSON array where each item follows this format exactly:
+
+        [
+        {{
+            "title": "<Short Impact Summary>",
+            "description": "<Why this matters for these specific events>",
+            "event_ids": ["ID1", "ID2", "ID3"],
+            "priority": "HIGH | MEDIUM | LOW"
+        }}
+        ]
+
+        CRITICAL RULES:
+        - DO NOT be lazy. If 5 events are related, include all 5 IDs in the "event_ids" array.
+        - If no events are related, return an empty array [].
         """
 
         config = types.GenerateContentConfig(
