@@ -30,7 +30,7 @@ class CategoryRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def find_by_user_id(self, user_id: int) -> List[Category]:
+    def find_by_user_id(self, user_id: UserId) -> List[Category]:
         raise NotImplementedError
 
     @abstractmethod

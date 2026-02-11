@@ -36,9 +36,9 @@ class CategoryService:
 
         if existing is None:
             raise BusinessException(ErrorCode.DATA_NOT_FOUND)
-        if existing.user_id.value != user_id.value:
+        if existing.user_id != user_id:
             raise BusinessException(ErrorCode.FORBIDDEN)
         self.repository.delete(category_id)
 
     def list_categories(self, user_id: UserId) -> List[Category]:
-        return self.repository.find_by_user_id(user_id.value)
+        return self.repository.find_by_user_id(user_id)

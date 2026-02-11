@@ -1,5 +1,6 @@
 import json
 
+from accounts.application.ports.repository import AccountRepository
 from common.errors.error_codes import ErrorCode
 from common.errors.exceptions import BusinessException
 from user_calendar.application.ports.external.calendar_advisor import (
@@ -14,9 +15,11 @@ class CalendarAdvisorService:
     def __init__(
         self,
         event_repo: CalendarEventRepository,
+        account_repo: AccountRepository,
         advisor: CalendarAdvisorPort,
     ):
         self.event_repo = event_repo
+        self.account_repo = account_repo
         self.advisor = advisor
 
     def analyze_document_and_suggest(
@@ -24,16 +27,54 @@ class CalendarAdvisorService:
         user_id: UserId,
         document_text: str,
     ) -> str:
-        if not document_text:
-            raise BusinessException(ErrorCode.INVALID_PARAMETER)
-
         events = self.event_repo.find_by_user_id(user_id)
-        if not events:
+        account = self.account_repo.find_by_user_id(user_id.value)
+
+        if not account:
             raise BusinessException(ErrorCode.DATA_NOT_FOUND)
+
+        country = account.country
+        if not country:
+            raise BusinessException(ErrorCode.DATA_NOT_FOUND)
+        country_context = f"{country.code} ({country.currency})"
 
         serialized_events = [
             CalendarEventSerializer.from_domain(e).data for e in events
         ]
-        events_text = json.dumps(serialized_events, indent=2, ensure_ascii=False)
 
-        return self.advisor.analyze_events(events_text, document_text)
+        events_text = json.dumps(
+            serialized_events,
+            indent=2,
+            ensure_ascii=False,
+        )
+        # Call Gemini
+        try:
+            return self.advisor.analyze_events(
+                events_text=events_text,
+                document_text=document_text,
+                country_context=country_context,
+            )
+        except Exception as e:
+            err_msg = str(e)
+
+            if "RESOURCE_EXHAUSTED" in err_msg or "429" in err_msg:
+                print("⚠️ Gemini quota exceeded. Using fallback advisor.")
+                return self._fallback_advice(
+                    events_text, document_text, country_context
+                )
+
+            print("Gemini error:", err_msg)
+            return self._fallback_advice(events_text, document_text, country_context)
+
+    def _fallback_advice(
+        self, events_text: str, document_text: str, country_context: str
+    ) -> str:
+        return json.dumps(
+            [
+                {
+                    "event_title": "All events",
+                    "suggestion": "keep",
+                    "reason": "AI advisor unavailable. No automated changes recommended.",
+                }
+            ]
+        )

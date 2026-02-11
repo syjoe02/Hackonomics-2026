@@ -1,5 +1,8 @@
+import time
+
 from django.conf import settings
 from google import genai
+from google.genai import types
 
 from user_calendar.application.ports.external.calendar_advisor import (
     CalendarAdvisorPort,
@@ -7,38 +10,55 @@ from user_calendar.application.ports.external.calendar_advisor import (
 
 
 class GeminiCalendarAdvisorAdapter(CalendarAdvisorPort):
+    MAX_EVENTS = 10
+    MODEL_NAME = "gemini-2.5-flash-lite"
+
     def __init__(self):
         self.client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-    def analyze_events(self, events_text: str, document_text: str) -> str:
+    def analyze_events(
+        self,
+        events_text: str,
+        document_text: str,
+        country_context: str,
+    ) -> str:
+
+        events_lines = events_text.split("\n")
+        events_preview = "\n".join(events_lines[: self.MAX_EVENTS])
+
         prompt = f"""
-        USER EVENTS (JSON ARRAY):
-        {events_text}
+        COUNTRY CONTEXT: {country_context}
+        USER EVENTS: {events_preview}
+        NEW DOCUMENT/URL: {document_text}
 
-        NEW DOCUMENT:
-        {document_text}
-
-        TASK:
-        - Analyze how this document might impact the user's events.
-        - For relevant events, suggest whether the user should:
-          - keep the event as is
-          - move it earlier
-          - move it later
-        - Return a JSON array like this:
-
-        [
-          {{
-            "event_id": "8f3a2c1e-...",
-            "event_title": "Gas Station",
-            "suggestion": "move earlier",
-            "reason": "Because fuel prices are expected to rise..."
-          }}
-        ]
+        ASK:
+        - Analyze how this document/news impacts the user's events.
+        - Return a JSON array of suggestions.
         """
 
-        response = self.client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=prompt,
+        config = types.GenerateContentConfig(
+            response_mime_type="application/json",
+            temperature=0.2,
         )
 
-        return response.text
+        max_retries = 3
+        delay = 5
+
+        for attempt in range(max_retries):
+            try:
+                response = self.client.models.generate_content(
+                    model=self.MODEL_NAME,
+                    contents=prompt,
+                    config=config,
+                )
+                return response.text
+
+            except Exception as e:
+                if "429" in str(e) or "503" in str(e):
+                    if attempt < max_retries - 1:
+                        time.sleep(delay)
+                        delay *= 2
+                        continue
+                raise e
+
+        return "[]"
