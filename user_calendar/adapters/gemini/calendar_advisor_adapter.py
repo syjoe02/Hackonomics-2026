@@ -21,7 +21,7 @@ class GeminiCalendarAdvisorAdapter(CalendarAdvisorPort):
         events_text: str,
         document_text: str,
         country_context: str,
-    ) -> str:    
+    ) -> str:
         prompt = f"""
         COUNTRY CONTEXT: {country_context}
 
