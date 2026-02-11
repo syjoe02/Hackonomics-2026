@@ -1,3 +1,5 @@
+import json
+import logging
 from uuid import UUID
 
 from rest_framework import status
@@ -5,10 +7,17 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from accounts.adapters.orm.repository import DjangoAccountRepository
+from user_calendar.adapters.gemini.calendar_advisor_adapter import (
+    GeminiCalendarAdvisorAdapter,
+)
 from user_calendar.adapters.orm.repository import (
     DjangoCalendarEventRepository,
     DjangoCategoryRepository,
     DjangoUserCalendarRepository,
+)
+from user_calendar.application.services.calendar_advisor_service import (
+    CalendarAdvisorService,
 )
 from user_calendar.application.services.calendar_event_service import (
     CalendarEventService,
@@ -24,6 +33,8 @@ from user_calendar.presentation.serializers import (
     UserCalendarSerializer,
 )
 from user_calendar.utils.google_oauth import build_google_calendar_flow
+
+logger = logging.getLogger(__name__)
 
 
 class UserCalendarInitAPIView(APIView):
@@ -208,3 +219,42 @@ class CalendarEventDetailAPIView(APIView):
         )
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CalendarAdviceView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        document_text = request.data.get("document_text")
+
+        service = CalendarAdvisorService(
+            event_repo=DjangoCalendarEventRepository(),
+            account_repo=DjangoAccountRepository(),
+            advisor=GeminiCalendarAdvisorAdapter(),
+        )
+
+        try:
+            raw_advice = service.analyze_document_and_suggest(
+                user_id=UserId(request.user.id),
+                document_text=document_text,
+            )
+
+            try:
+                advice_data = json.loads(raw_advice)
+            except (json.JSONDecodeError, TypeError):
+                logger.error(f"Gemini returned invalid JSON: {raw_advice}")
+                return Response(
+                    {"error": "AI response was malformed. Please try again."},
+                    status=status.HTTP_424_FAILED_DEPENDENCY,
+                )
+
+            return Response({"advice": advice_data}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.error(f"CalendarAdvisorService Error: {str(e)}")
+            return Response(
+                {
+                    "error": "The AI advisor is currently unavailable. Please try again in a few minutes."
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )

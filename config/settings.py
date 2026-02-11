@@ -38,7 +38,6 @@ FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:5173")
 ALLOWED_HOSTS = ["*"]
 
 # Application definition
-
 INSTALLED_APPS = [
     # Local apps
     "user_calendar",
@@ -110,6 +109,8 @@ GOOGLE_CALENDAR_REDIRECT_URI = env(
     default="http://localhost:8000/api/calendar/oauth/callback/",
 )
 
+# Gemini
+GEMINI_API_KEY = env("GEMINI_API_KEY")
 
 if DEBUG:
     EXCEPTION_HANDLER = "rest_framework.views.exception_handler"

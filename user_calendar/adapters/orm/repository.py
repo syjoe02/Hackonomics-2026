@@ -81,8 +81,10 @@ class DjangoCategoryRepository(CategoryRepository):
             },
         )
 
-    def find_by_user_id(self, user_id: int) -> List[Category]:
-        rows = CategoryModel.objects.filter(user_id=user_id).order_by("created_at")
+    def find_by_user_id(self, user_id: UserId) -> List[Category]:
+        rows = CategoryModel.objects.filter(user_id=user_id.value).order_by(
+            "created_at"
+        )
         return [
             Category(
                 category_id=CategoryId(r.id),
