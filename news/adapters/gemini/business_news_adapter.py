@@ -16,26 +16,20 @@ class GeminiBusinessNewsAdapter(BusinessNewsPort):
     def get_country_news(self, country_code: str) -> str:
 
         prompt = f"""
-        You are a financial news analyst.
+            You are a financial analyst.
 
-        TASK:
-        1. Collect IMPORTANT business & economic news from the LAST 3 DAYS.
-        2. Focus on country: {country_code}
-        3. Include global news only if it impacts this country.
-        4. Summarize into clear bullet points.
+            Summarize IMPORTANT business & economic news from the LAST 3 DAYS affecting {country_code}.
 
-        Focus on:
-        - inflation
-        - interest rates
-        - fuel/energy prices
-        - housing market
-        - employment
-        - technology & exports
-        - stock market
-        - consumer costs
+            Include global events only if they impact this country.
 
-        OUTPUT:
-        bullet points only.
+            Focus on:
+            - inflation & consumer prices
+            - interest rates
+            - fuel & energy costs
+            - housing & employment
+            - technology, exports & markets
+
+            Return concise bullet points explaining what happened and why it matters.
         """
 
         config = types.GenerateContentConfig(
