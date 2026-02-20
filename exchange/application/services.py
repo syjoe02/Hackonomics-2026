@@ -37,6 +37,8 @@ class ExchangeHistoryService:
         "1y": 12,
         "2y": 24,
     }
+    DEFAULT_CURRENCY = "CAD"
+    DEFAULT_PERIOD = "6m"
 
     def __init__(self) -> None:
         self.client = FrankfurterClient()
@@ -44,8 +46,8 @@ class ExchangeHistoryService:
     def get_usd_history_until_today(
         self, currency: str, period: str
     ) -> List[_HistoryRow]:
-        if not currency:
-            raise BusinessException(ErrorCode.INVALID_PARAMETER)
+        currency = (currency or self.DEFAULT_CURRENCY).upper()
+        period = period or self.DEFAULT_PERIOD
 
         if period not in self.PERIOD_MAP:
             raise BusinessException(ErrorCode.INVALID_PARAMETER)

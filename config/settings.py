@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import sys
 from pathlib import Path
 
 import environ
@@ -36,6 +37,9 @@ DEBUG = not IS_PRODUCTION
 FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:5173")
 
 ALLOWED_HOSTS = ["*"]
+
+# Test
+TESTING = "pytest" in sys.modules
 
 # Application definition
 INSTALLED_APPS = [

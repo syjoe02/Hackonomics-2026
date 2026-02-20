@@ -21,6 +21,7 @@ class CompareInvestmentUseCase:
         "1y": 12,
         "2y": 24,
     }
+    DEFAULT_DEPOSIT_RATE = Decimal("3.0")
 
     def __init__(
         self,
@@ -36,17 +37,23 @@ class CompareInvestmentUseCase:
         period: str,
         deposit_rate: float,
     ) -> SimulationResult:
+
+        months = self.PERIOD_MAP.get(period)
+        if not months:
+            raise BusinessException(ErrorCode.INVALID_PARAMETER)
+
         if period not in self.PERIOD_MAP:
             raise BusinessException(ErrorCode.INVALID_PARAMETER)
 
-        if deposit_rate < 0:
-            raise BusinessException(ErrorCode.INVALID_PARAMETER)
+        if deposit_rate is None:
+            deposit_rate_d = self.DEFAULT_DEPOSIT_RATE
+        else:
+            deposit_rate_d = Decimal(str(deposit_rate))
+            if deposit_rate_d < 0:
+                raise BusinessException(ErrorCode.INVALID_PARAMETER)
 
-        deposit_rate_d = Decimal(str(deposit_rate))
         account = self.account_repository.find_by_user_id(user_id)
-        if not account:
-            raise BusinessException(ErrorCode.DATA_NOT_FOUND)
-        if account.country is None:
+        if not account or account.country is None:
             raise BusinessException(ErrorCode.DATA_NOT_FOUND)
 
         monthly_amount = Decimal(str(account.monthly_investable_amount))
@@ -63,7 +70,6 @@ class CompareInvestmentUseCase:
         if not history:
             raise BusinessException(ErrorCode.DATA_NOT_FOUND)
 
-        months = self.PERIOD_MAP[period]
         monthly_rates = self._extract_monthly_rates(history, months)
         if len(monthly_rates) < months:
             raise BusinessException(ErrorCode.DATA_NOT_FOUND)
