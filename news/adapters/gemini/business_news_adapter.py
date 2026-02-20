@@ -1,9 +1,12 @@
 import time
+from typing import Dict, List
 
 from django.conf import settings
 from google import genai
 from google.genai import types
 
+from common.ai.json_cleaner import clean_json_response
+from common.ai.response_validator import validate_news_items
 from news.application.ports.business_news_port import BusinessNewsPort
 
 
@@ -13,27 +16,34 @@ class GeminiBusinessNewsAdapter(BusinessNewsPort):
     def __init__(self):
         self.client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-    def get_country_news(self, country_code: str) -> str:
+    def get_country_news(self, country_code: str) -> List[Dict[str, str]]:
 
         prompt = f"""
-            You are a financial analyst.
+        Act as a senior financial analyst.
 
-            Summarize IMPORTANT business & economic news from the LAST 3 DAYS affecting {country_code}.
+        Summarize the most important global business, market
+        and economic developments affecting:
 
-            Include global events only if they impact this country.
+        • {country_code}
+        • the global
 
-            Focus on:
-            - inflation & consumer prices
-            - interest rates
-            - fuel & energy costs
-            - housing & employment
-            - technology, exports & markets
+        Return exactly 5 high-impact insights.
 
-            Return concise bullet points explaining what happened and why it matters.
+        Each insight must include:
+        - a short title
+        - a concise explanation of economic impact
+
+        Return ONLY a valid JSON array:
+
+        [
+        {{
+            "title": "...",
+            "description": "..."
+        }}
+        ]
         """
 
         config = types.GenerateContentConfig(
-            tools=[{"url_context": {}}],
             temperature=0.2,
         )
 
@@ -47,14 +57,27 @@ class GeminiBusinessNewsAdapter(BusinessNewsPort):
                     contents=prompt,
                     config=config,
                 )
-                return response.text.strip()
+
+                raw = response.text
+
+                if not isinstance(raw, str):
+                    raw = str(raw)
+
+                cleaned = clean_json_response(raw)
+                validated = validate_news_items(cleaned)
+                if validated:
+                    return validated
+
+                print("⚠️ Gemini returned invalid structure", flush=True)
 
             except Exception as e:
+                print("⚠️ Gemini error:", str(e), flush=True)
+
                 if "429" in str(e) or "503" in str(e):
                     if attempt < retries - 1:
                         time.sleep(delay)
                         delay *= 2
                         continue
-                raise e
+                break
 
-        return "News temporarily unavailable."
+        return []
