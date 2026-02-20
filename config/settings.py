@@ -44,6 +44,7 @@ TESTING = "pytest" in sys.modules
 # Application definition
 INSTALLED_APPS = [
     # Local apps
+    "news",
     "user_calendar",
     "exchange",
     "meta",
