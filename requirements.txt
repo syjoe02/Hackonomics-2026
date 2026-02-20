@@ -24,3 +24,4 @@ oauthlib
 requests-oauthlib
 types-requests
 types-python-dateutil
+pytest-json-report

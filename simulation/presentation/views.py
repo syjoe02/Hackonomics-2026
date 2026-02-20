@@ -14,9 +14,11 @@ class CompareDcaVsDepositAPIView(GenericAPIView):
     serializer_class = CompareSimulationRequestSerializer
 
     def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        data = serializer.validated_data
         user = request.user
-        period = request.data.get("period", "1y")
-        deposit_rate = request.data.get("deposit_rate")
 
         usecase = CompareInvestmentUseCase(
             account_repository=DjangoAccountRepository(),
@@ -25,8 +27,8 @@ class CompareDcaVsDepositAPIView(GenericAPIView):
 
         result = usecase.execute(
             user_id=user.id,
-            period=period,
-            deposit_rate=deposit_rate,
+            period=data.get("period", "1y"),
+            deposit_rate=data.get("deposit_rate"),
         )
 
         return Response(result.to_dict(), status=status.HTTP_200_OK)

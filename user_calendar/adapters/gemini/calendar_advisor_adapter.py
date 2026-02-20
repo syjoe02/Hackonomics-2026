@@ -21,7 +21,7 @@ class GeminiCalendarAdvisorAdapter(CalendarAdvisorPort):
         events_text: str,
         document_text: str,
         country_context: str,
-    ) -> str:    
+    ) -> str:
         prompt = f"""
         COUNTRY CONTEXT: {country_context}
 
@@ -33,7 +33,7 @@ class GeminiCalendarAdvisorAdapter(CalendarAdvisorPort):
 
         TASK:
         1. Identify EVERY event in the list above that could be impacted by the news.
-        2. If multiple events share the same impact (e.g., 'Oil Price Increase' affects all driving-related events), you MUST group all their IDs together.
+        2. If multiple events share the same impact. you MUST group all their IDs together.
         3. Return a JSON array where each item follows this format exactly:
 
         [
