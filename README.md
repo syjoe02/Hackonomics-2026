@@ -15,3 +15,18 @@ This application helps users
 - presentation should not depend on other modules' adapters
 
     import only its own module service
+
+
+### Custom AI
+
+```
+News Sources
+     ↓
+Gemini → summarization (5 topics)
+     ↓
+Learning AI Model (your custom layer)
+     ↓
+Learning Insights Engine
+     ↓
+Frontend (learning dashboard)
+```

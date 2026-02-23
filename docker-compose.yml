@@ -56,7 +56,7 @@ services:
 
   celery-worker:
     build: .
-    container_name: econocoach-celery-worker
+    container_name: myeconocoach-celery-worker
     command: celery -A config worker -l info
     env_file:
       - ./env/.env
@@ -66,7 +66,7 @@ services:
 
   celery-beat:
     build: .
-    container_name: econocoach-celery-beat
+    container_name: myeconocoach-celery-beat
     command: celery -A config beat -l info
     env_file:
       - ./env/.env
