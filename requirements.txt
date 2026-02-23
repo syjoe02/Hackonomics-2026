@@ -2,7 +2,7 @@ Django
 djangorestframework
 django-allauth
 django-cors-headers
-"psycopg[binary]"
+psycopg[binary]
 requests
 django-environ
 pyJWT
@@ -12,6 +12,7 @@ python-dateutil
 kafka-python
 celery
 redis
+django-redis
 black
 isort
 flake8
