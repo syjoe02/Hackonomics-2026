@@ -1,4 +1,5 @@
 import time
+from datetime import date
 from typing import Dict, List
 
 from django.conf import settings
@@ -12,28 +13,40 @@ from news.application.ports.business_news_port import BusinessNewsPort
 
 class GeminiBusinessNewsAdapter(BusinessNewsPort):
     MODEL = "gemini-2.5-flash-lite"
+    MAX_RETRIES = 3
+    INITIAL_DELAY = 3
 
     def __init__(self):
         self.client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
     def get_country_news(self, country_code: str) -> List[Dict[str, str]]:
 
-        prompt = f"""
-        Act as a senior financial analyst.
+        today = date.today().strftime("%Y.%m.%d")
 
-        Summarize the most important global business, market
-        and economic developments affecting:
+        
+        prompt = f"""
+        Act as a senior financial analyst. And Today's date is {today}.
+
+        Summarize the MOST IMPORTANT business and market-moving
+        developments from the LAST 72 HOURS affecting:
 
         • {country_code}
-        • the global
+        • the global economy
 
-        Return exactly 5 high-impact insights.
+        REQUIREMENTS:
+        - Focus ONLY on developments from the past 72 hours.
+        - Prioritize market impact, corporate activity, policy moves,
+        financial markets, commodities, and major economic data releases.
+        - Do NOT include older trends or background context.
+        - If no major developments exist, return [].
 
-        Each insight must include:
-        - a short title
-        - a concise explanation of economic impact
+        Return EXACTLY 5 high-impact insights.
 
-        Return ONLY a valid JSON array:
+        Each insight MUST include:
+        - a concise, informative title (DO NOT include dates)
+        - a clear explanation of the economic or market impact
+
+        Return ONLY a valid JSON array in this format:
 
         [
         {{
@@ -47,10 +60,9 @@ class GeminiBusinessNewsAdapter(BusinessNewsPort):
             temperature=0.2,
         )
 
-        retries = 3
-        delay = 3
+        delay = self.INITIAL_DELAY
 
-        for attempt in range(retries):
+        for attempt in range(self.MAX_RETRIES):
             try:
                 response = self.client.models.generate_content(
                     model=self.MODEL,
@@ -74,7 +86,7 @@ class GeminiBusinessNewsAdapter(BusinessNewsPort):
                 print("⚠️ Gemini error:", str(e), flush=True)
 
                 if "429" in str(e) or "503" in str(e):
-                    if attempt < retries - 1:
+                    if attempt < self.MAX_RETRIES - 1:
                         time.sleep(delay)
                         delay *= 2
                         continue
