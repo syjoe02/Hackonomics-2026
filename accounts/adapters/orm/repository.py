@@ -24,6 +24,14 @@ class DjangoAccountRepository(AccountRepository):
             income=AnnualIncome(m.annual_income),
             monthly_investable_amount=m.monthly_investable_amount,
         )
+    
+    def get_all_country_codes(self) -> list[str]:
+        return (
+            AccountModel.objects
+            .exclude(country_code__isnull=True)
+            .values_list("country_code", flat=True)
+            .distinct()
+        )
 
     def save(self, account: Account) -> None:
         if account.country is None or account.income is None:
