@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 import sys
 from pathlib import Path
+from celery.schedules import crontab
 
 import environ
 
@@ -113,6 +114,21 @@ GOOGLE_CALENDAR_REDIRECT_URI = env(
     "GOOGLE_CALENDAR_REDIRECT_URI",
     default="http://localhost:8000/api/calendar/oauth/callback/",
 )
+
+# Redis & Celery
+REDIS_URL = env("REDIS_URL", default="redis://localhost:6380/0")
+
+CELERY_BROKER_URL = "redis://redis:6380/0"
+CELERY_RESULT_BACKEND = "redis://redis:6380/0"
+CELERY_TIMEZONE = "UTC"
+CELERY_ENABLE_UTC = True
+
+CELERY_BEAT_SCHEDULE = {
+    "fetch-business-news-every-6-hours": {
+        "task": "news.tasks.fetch_business_news",
+        "schedule": crontab(hour="*/6", minute=0),
+    },
+}
 
 # Gemini
 GEMINI_API_KEY = env("GEMINI_API_KEY")

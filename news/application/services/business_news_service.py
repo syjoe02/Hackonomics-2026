@@ -1,4 +1,6 @@
+from django.core.cache import cache
 from django.utils import timezone
+import logging
 
 from accounts.application.ports.repository import AccountRepository
 from common.ai.json_cleaner import clean_json_response
@@ -7,6 +9,10 @@ from news.application.ports.business_news_port import BusinessNewsPort
 from news.application.ports.business_news_repository import BusinessNewsRepository
 from news.domain.entities import BusinessNews
 from user_calendar.domain.value_objects import UserId
+
+logger = logging.getLogger(__name__)
+
+CACHE_TTL = 60 * 60 * 6
 
 
 class BusinessNewsService:
@@ -28,39 +34,47 @@ class BusinessNewsService:
             return []
 
         country_code = account.country.code
+        cache_key = f"business_news:{country_code}"
 
-        news_items = []  # ✅ ALWAYS initialize
+        cached = cache.get(cache_key)
+        if cached:
+            return cached
 
+        latest = self.news_repo.find_latest(country_code)
+        if latest:
+            cache.set(cache_key, latest.content, CACHE_TTL)
+            return latest.content
+
+        return [
+            {
+                "title": "News unavailable",
+                "description": "Unable to retrieve business news at this time.",
+            }
+        ]
+    
+    def fetch_and_store_news(self, country_code: str):
         try:
             raw_text = self.news_port.get_country_news(country_code)
-
-            print("=== GEMINI RAW OUTPUT ===", flush=True)
-            print(raw_text, flush=True)
 
             cleaned = clean_json_response(raw_text)
             validated = validate_news_items(cleaned)
 
-            news_items = validated
+            if not validated:
+                logger.warning(f"No valid news returned for {country_code}")
+                return
 
-        except Exception as e:
-            print("=== GEMINI ERROR ===", flush=True)
-            print(str(e), flush=True)
-
-        # fallback if AI failed
-        if not news_items:
-            news_items = [
-                {
-                    "title": "News unavailable",
-                    "description": "Unable to retrieve business news at this time.",
-                }
-            ]
-
-        self.news_repo.save(
-            BusinessNews(
+            news = BusinessNews(
                 country_code=country_code,
-                content=news_items,
+                content=validated,
                 created_at=timezone.now(),
             )
-        )
 
-        return news_items
+            self.news_repo.save(news)
+
+            cache_key = f"business_news:{country_code}"
+            cache.set(cache_key, validated, CACHE_TTL)
+
+            logger.info(f"News updated for {country_code}")
+
+        except Exception as e:
+            logger.exception(f"Gemini fetch failed for {country_code}: {str(e)}")

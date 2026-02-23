@@ -19,6 +19,15 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: myeconocoach-redis
+    restart: always
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+
   kafka:
     image: apache/kafka:4.1.1
     container_name: myeconocoach-kafka
@@ -45,6 +54,27 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
 
+  celery-worker:
+    build: .
+    container_name: myeconocoach-celery-worker
+    command: celery -A config worker -l info
+    env_file:
+      - ./env/.env
+    depends_on:
+      - postgres
+      - redis
+
+  celery-beat:
+    build: .
+    container_name: myeconocoach-celery-beat
+    command: celery -A config beat -l info
+    env_file:
+      - ./env/.env
+    depends_on:
+      - postgres
+      - redis
+
 volumes:
   postgres_data:
+  redis_data:
   kafka_data:
