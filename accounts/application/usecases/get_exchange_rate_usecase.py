@@ -13,7 +13,7 @@ class GetExchangeRateUseCase:
     def execute(self, user_id: int) -> Dict[str, str | float]:
         account = self.repository.find_by_user_id(user_id)
         if not account:
-            raise BusinessException(ErrorCode.DATA_NOT_FOUND)
+            return None
         if account.country is None:
             raise BusinessException(ErrorCode.DATA_NOT_FOUND)
 

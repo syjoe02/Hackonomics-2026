@@ -44,13 +44,11 @@ class AccountView(GenericAPIView):
 
         command = AccountUpdateCommand(**serializer.validated_data)
 
-        event_publisher = AccountDomainEventPublisher(
-            outbox_repository=OutboxEventRepository(),
-        )
-
         usecase = UpdateAccountUseCase(
             repository=DjangoAccountRepository(),
-            event_publisher=event_publisher,
+            event_publisher=AccountDomainEventPublisher(
+                outbox_repository=OutboxEventRepository()
+            ),
         )
         usecase.execute(
             user_id=request.user.id,

@@ -103,6 +103,8 @@ ACCOUNT_SIGNUP_FIELDS = [
 ]
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
+# Gemini
+GEMINI_API_KEY = env("GEMINI_API_KEY")
 # Google
 GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET")
@@ -129,9 +131,6 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(hour="*/6", minute=0),
     },
 }
-
-# Gemini
-GEMINI_API_KEY = env("GEMINI_API_KEY")
 
 if DEBUG:
     EXCEPTION_HANDLER = "rest_framework.views.exception_handler"
