@@ -1,12 +1,16 @@
+from events.domain.entities import DomainEvent
+
+
 class UserEventPublisher:
 
-    def user_signup(self, user):
-        return {
-            "aggregate_type": "User",
-            "aggregate_id": user.id,
-            "event_type": "USER_SIGNUP",
-            "payload": {
+    @staticmethod
+    def user_signed_up(user) -> DomainEvent:
+        return DomainEvent(
+            aggregate_type="User",
+            aggregate_id=str(user.id),
+            event_type="USER_SIGNUP",
+            payload={
                 "user_id": user.id,
                 "email": user.email,
             },
-        }
+        )
