@@ -54,10 +54,7 @@ class BusinessNewsService:
     
     def fetch_and_store_news(self, country_code: str):
         try:
-            raw_text = self.news_port.get_country_news(country_code)
-
-            cleaned = clean_json_response(raw_text)
-            validated = validate_news_items(cleaned)
+            validated = self.news_port.get_country_news(country_code)
 
             if not validated:
                 logger.warning(f"No valid news returned for {country_code}")

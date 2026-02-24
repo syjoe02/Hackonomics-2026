@@ -82,6 +82,7 @@ class GeminiBusinessNewsAdapter(BusinessNewsPort):
 
                 if validated:
                     logger.info(f"✅ Gemini success → {len(validated)} items")
+                    print(validated)
                     return validated
 
                 logger.warning("⚠️ Gemini returned empty or invalid structure")
@@ -95,6 +96,5 @@ class GeminiBusinessNewsAdapter(BusinessNewsPort):
                         delay *= 2
                         continue
                 break
-        
         logger.error("🚨 Gemini failed after retries")
         return []

@@ -71,8 +71,7 @@ services:
   celery-beat:
     build: .
     container_name: myeconocoach-celery-beat
-    command: celery -A config beat -l info
-    restart: unless-stopped
+    command: celery -A config beat -l info --schedule /tmp/celerybeat-schedule
     env_file:
       - ./env/.env
     environment:
