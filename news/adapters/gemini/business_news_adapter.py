@@ -1,4 +1,5 @@
 import time
+import logging
 from datetime import date
 from typing import Dict, List
 
@@ -10,6 +11,7 @@ from common.ai.json_cleaner import clean_json_response
 from common.ai.response_validator import validate_news_items
 from news.application.ports.business_news_port import BusinessNewsPort
 
+logger = logging.getLogger(__name__)
 
 class GeminiBusinessNewsAdapter(BusinessNewsPort):
     MODEL = "gemini-2.5-flash-lite"
@@ -21,9 +23,7 @@ class GeminiBusinessNewsAdapter(BusinessNewsPort):
 
     def get_country_news(self, country_code: str) -> List[Dict[str, str]]:
 
-        today = date.today().strftime("%Y.%m.%d")
-
-        
+        today = date.today().strftime("%Y.%m.%d")        
         prompt = f"""
         Act as a senior financial analyst. And Today's date is {today}.
 
@@ -56,34 +56,38 @@ class GeminiBusinessNewsAdapter(BusinessNewsPort):
         ]
         """
 
-        config = types.GenerateContentConfig(
-            temperature=0.2,
-        )
-
+        config = types.GenerateContentConfig(temperature=0.2)
         delay = self.INITIAL_DELAY
 
         for attempt in range(self.MAX_RETRIES):
             try:
+                logger.info(f"🌍 Gemini request start → {country_code}")
                 response = self.client.models.generate_content(
                     model=self.MODEL,
                     contents=prompt,
                     config=config,
                 )
 
-                raw = response.text
+                raw = response.text or ""
+                logger.debug(f"Gemini RAW response:\n{raw}")
 
                 if not isinstance(raw, str):
                     raw = str(raw)
 
                 cleaned = clean_json_response(raw)
+                logger.debug(f"Cleaned JSON:\n{cleaned}")
+
                 validated = validate_news_items(cleaned)
+                logger.debug(f"Validated items: {validated}")
+
                 if validated:
+                    logger.info(f"✅ Gemini success → {len(validated)} items")
                     return validated
 
-                print("⚠️ Gemini returned invalid structure", flush=True)
+                logger.warning("⚠️ Gemini returned empty or invalid structure")
 
             except Exception as e:
-                print("⚠️ Gemini error:", str(e), flush=True)
+                logger.exception(f"❌ Gemini error attempt {attempt+1}: {e}")
 
                 if "429" in str(e) or "503" in str(e):
                     if attempt < self.MAX_RETRIES - 1:
@@ -91,5 +95,6 @@ class GeminiBusinessNewsAdapter(BusinessNewsPort):
                         delay *= 2
                         continue
                 break
-
+        
+        logger.error("🚨 Gemini failed after retries")
         return []

@@ -116,10 +116,10 @@ GOOGLE_CALENDAR_REDIRECT_URI = env(
 )
 
 # Redis & Celery
-REDIS_URL = env("REDIS_URL", default="redis://localhost:6380/0")
+REDIS_URL = env("REDIS_URL", default="redis://localhost:6379/0")
 
-CELERY_BROKER_URL = "redis://redis:6380/0"
-CELERY_RESULT_BACKEND = "redis://redis:6380/0"
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
 CELERY_TIMEZONE = "UTC"
 CELERY_ENABLE_UTC = True
 
@@ -146,6 +146,21 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ],
     "EXCEPTION_HANDLER": EXCEPTION_HANDLER,
+}
+
+# Logging
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
 }
 
 SPECTACULAR_SETTINGS = {

@@ -60,6 +60,10 @@ services:
     command: celery -A config worker -l info
     env_file:
       - ./env/.env
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      REDIS_URL: redis://redis:6379/0
     depends_on:
       - postgres
       - redis
@@ -68,8 +72,15 @@ services:
     build: .
     container_name: myeconocoach-celery-beat
     command: celery -A config beat -l info
+    restart: unless-stopped
     env_file:
       - ./env/.env
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - celerybeat_data:/app/celerybeat-schedule
     depends_on:
       - postgres
       - redis
@@ -78,3 +89,4 @@ volumes:
   postgres_data:
   redis_data:
   kafka_data:
+  celerybeat_data:
