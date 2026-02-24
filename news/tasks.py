@@ -1,11 +1,12 @@
-from celery import shared_task
-from django.utils import timezone
 import logging
 
-from news.application.services.business_news_service import BusinessNewsService
-from news.adapters.orm.repository import DjangoBusinessNewsRepository
-from news.adapters.gemini.business_news_adapter import GeminiBusinessNewsAdapter
+from celery import shared_task
+from django.utils import timezone
+
 from accounts.adapters.orm.repository import DjangoAccountRepository
+from news.adapters.gemini.business_news_adapter import GeminiBusinessNewsAdapter
+from news.adapters.orm.repository import DjangoBusinessNewsRepository
+from news.application.services.business_news_service import BusinessNewsService
 
 logger = logging.getLogger(__name__)
 
@@ -13,12 +14,10 @@ logger = logging.getLogger(__name__)
 @shared_task(
     bind=True,
     autoretry_for=(Exception,),
-    retry_backoff=60,      # retry after 60s, then exponential
-    retry_backoff_max=600, # max 10 minutes
+    retry_backoff=60,  # retry after 60s, then exponential
+    retry_backoff_max=600,  # max 10 minutes
     retry_kwargs={"max_retries": 3},
 )
-
-
 def fetch_business_news(self):
 
     logger.info("Starting business news fetch task")

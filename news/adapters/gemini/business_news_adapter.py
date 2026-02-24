@@ -1,5 +1,5 @@
-import time
 import logging
+import time
 from datetime import date
 from typing import Dict, List
 
@@ -13,6 +13,7 @@ from news.application.ports.business_news_port import BusinessNewsPort
 
 logger = logging.getLogger(__name__)
 
+
 class GeminiBusinessNewsAdapter(BusinessNewsPort):
     MODEL = "gemini-2.5-flash-lite"
     MAX_RETRIES = 3
@@ -23,7 +24,7 @@ class GeminiBusinessNewsAdapter(BusinessNewsPort):
 
     def get_country_news(self, country_code: str) -> List[Dict[str, str]]:
 
-        today = date.today().strftime("%Y.%m.%d")        
+        today = date.today().strftime("%Y.%m.%d")
         prompt = f"""
         Act as a senior financial analyst. And Today's date is {today}.
 

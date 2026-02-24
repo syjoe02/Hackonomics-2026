@@ -7,7 +7,7 @@ from news.domain.entities import BusinessNews
 class BusinessNewsRepository(ABC):
 
     @abstractmethod
-    def find_recent_by_country(self, country_code: str) -> Optional[BusinessNews]:
+    def find_latest(self, country_code: str) -> Optional[BusinessNews]:
         pass
 
     @abstractmethod

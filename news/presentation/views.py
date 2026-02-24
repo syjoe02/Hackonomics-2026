@@ -19,6 +19,6 @@ class BusinessNewsView(APIView):
             news_repo=DjangoBusinessNewsRepository(),
         )
 
-        news = service.get_user_business_news(UserId(request.user.id))
+        data = service.get_user_business_news(UserId(request.user.id))
 
-        return Response({"news": news})
+        return Response(data)

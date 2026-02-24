@@ -1,4 +1,3 @@
-from django.conf import settings
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 
@@ -36,7 +35,7 @@ def global_exception_handler(exc, context):
     return Response(
         {
             "status": spec["status"],
-        "code": spec["code"],
+            "code": spec["code"],
             "message": spec["message"],
         },
         status=spec["status"],
