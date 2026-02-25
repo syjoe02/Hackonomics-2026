@@ -5,6 +5,8 @@ from django.core.cache import cache
 from django.utils import timezone
 
 from accounts.application.ports.repository import AccountRepository
+from common.errors.error_codes import ErrorCode
+from common.errors.exceptions import BusinessException
 from news.application.ports.business_news_port import BusinessNewsPort
 from news.application.ports.business_news_repository import BusinessNewsRepository
 from news.domain.entities import BusinessNews
@@ -50,6 +52,9 @@ class BusinessNewsService:
 
         return self._empty_response(country_code)
 
+    def refresh_user_country_news(self, user_id: UserId) -> str:
+        return self._get_country_code_or_raise(user_id)
+
     def fetch_and_store_news(self, country_code: str) -> None:
         lock_key = f"news-lock:{country_code}"
 
@@ -89,6 +94,14 @@ class BusinessNewsService:
 
         finally:
             cache.delete(lock_key)
+
+    # Helpers
+    def _get_country_code_or_raise(self, user_id: UserId) -> str:
+        account = self.account_repo.find_by_user_id(user_id.value)
+        if not account or not account.country:
+            raise BusinessException(ErrorCode.DATA_NOT_FOUND)
+
+        return account.country.code
 
     def _is_fresh(self, news: BusinessNews) -> bool:
         age = timezone.now() - news.created_at
