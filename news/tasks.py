@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 @shared_task(
     bind=True,
     autoretry_for=(Exception,),
-    retry_backoff=60,  # retry after 60s, then exponential
-    retry_backoff_max=600,  # max 10 minutes
+    retry_backoff=60,
+    retry_backoff_max=600,
     retry_kwargs={"max_retries": 3},
 )
 def fetch_business_news(self, country_code: Optional[str] = None) -> None:
@@ -24,6 +24,7 @@ def fetch_business_news(self, country_code: Optional[str] = None) -> None:
         news_port=GeminiBusinessNewsAdapter(),
         news_repo=DjangoBusinessNewsRepository(),
     )
+
     task_id = getattr(self.request, "id", None)
 
     if country_code:
@@ -37,9 +38,7 @@ def fetch_business_news(self, country_code: Optional[str] = None) -> None:
         logger.info("[task:%s] no countries found — skipping", task_id)
         return
 
-    logger.info(
-        "[task:%s] scheduled refresh start — %d countries", task_id, len(countries)
-    )
+    logger.info("[task:%s] scheduled refresh start — %d countries", task_id, len(countries))
 
     for code in countries:
         try:
