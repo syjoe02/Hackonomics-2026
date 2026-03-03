@@ -35,7 +35,7 @@ class BusinessNewsRefreshView(APIView):
         service = _build_service()
         country_code = service.refresh_user_country_news(UserId(request.user.id))
 
-        async_result = fetch_business_news.delay(country_code)
+        async_result = fetch_business_news.delay(country_code, True)
 
         return Response(
             {

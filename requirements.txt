@@ -30,3 +30,4 @@ google-genai
 grpcio
 grpcio-tools
 protobuf
+babel

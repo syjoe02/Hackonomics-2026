@@ -31,32 +31,35 @@ class BusinessNewsService:
         self.news_repo = news_repo
 
     def get_user_business_news(self, user_id: UserId) -> dict:
-        account = self.account_repo.find_by_user_id(user_id.value)
-
-        if not account or not account.country:
+        country_code = self._get_country_code_or_none(user_id)
+        if not country_code:
             return self._empty_response()
 
-        country_code = account.country.code
-        cache_key = f"business_news:{country_code}"
+        cache_key = self._cache_key(country_code)
 
         cached = cache.get(cache_key)
         if cached:
-            logger.debug(f"Cache hit for {country_code}")
+            logger.debug(f"Cache hit → {country_code}")
             return cached
 
         latest = self.news_repo.find_latest(country_code)
-        if latest:
-            response = self._build_response(latest)
-            cache.set(cache_key, response, CACHE_TTL)
-            return response
+        if not latest:
+            return self._empty_response(country_code)
 
-        return self._empty_response(country_code)
+        response = self._build_response(latest)
+        cache.set(cache_key, response, CACHE_TTL)
+
+        return response
 
     def refresh_user_country_news(self, user_id: UserId) -> str:
         return self._get_country_code_or_raise(user_id)
 
-    def fetch_and_store_news(self, country_code: str) -> None:
-        lock_key = f"news-lock:{country_code}"
+    def fetch_and_store_news(
+        self,
+        country_code: str,
+        force: bool = False,
+    ) -> None:
+        lock_key = self._lock_key(country_code)
 
         if not cache.add(lock_key, "locked", timeout=LOCK_TTL):
             logger.info(f"Skip {country_code}: another worker updating")
@@ -65,15 +68,16 @@ class BusinessNewsService:
         try:
             latest = self.news_repo.find_latest(country_code)
 
-            if latest and self._is_fresh(latest):
+            if latest and self._is_fresh(latest) and not force:
                 logger.info(f"Skip {country_code}: still fresh")
                 return
 
-            logger.info(f"Fetching Gemini news → {country_code}")
+            logger.info(f"Fetching news → {country_code} (force={force})")
+
             news_items = self.news_port.get_country_news(country_code)
 
             if not news_items:
-                logger.warning(f"No valid news returned for {country_code}")
+                logger.warning(f"No valid news returned → {country_code}")
                 return
 
             news = BusinessNews(
@@ -90,7 +94,7 @@ class BusinessNewsService:
             logger.info(f"News updated → {country_code}")
 
         except Exception as e:
-            logger.exception(f"Gemini fetch failed ({country_code}): {e}")
+            logger.exception(f"News fetch failed ({country_code}): {e}")
 
         finally:
             cache.delete(lock_key)
@@ -100,7 +104,12 @@ class BusinessNewsService:
         account = self.account_repo.find_by_user_id(user_id.value)
         if not account or not account.country:
             raise BusinessException(ErrorCode.DATA_NOT_FOUND)
+        return account.country.code
 
+    def _get_country_code_or_none(self, user_id: UserId) -> str | None:
+        account = self.account_repo.find_by_user_id(user_id.value)
+        if not account or not account.country:
+            return None
         return account.country.code
 
     def _is_fresh(self, news: BusinessNews) -> bool:
@@ -118,7 +127,10 @@ class BusinessNewsService:
             "update_interval_hours": UPDATE_INTERVAL_HOURS,
         }
 
-    def _empty_response(self, country_code: str | None = None) -> dict:
+    def _empty_response(
+        self,
+        country_code: str | None = None,
+    ) -> dict:
         return {
             "country_code": country_code,
             "news": [],
@@ -129,3 +141,6 @@ class BusinessNewsService:
 
     def _cache_key(self, country_code: str) -> str:
         return f"business_news:{country_code}"
+
+    def _lock_key(self, country_code: str) -> str:
+        return f"news-lock:{country_code}"

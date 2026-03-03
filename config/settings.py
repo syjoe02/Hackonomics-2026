@@ -120,6 +120,13 @@ GOOGLE_CALENDAR_REDIRECT_URI = env(
 # Redis & Celery
 REDIS_URL = env("REDIS_URL", default="redis://localhost:6380/0")
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": REDIS_URL,
+    }
+}
+
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_TIMEZONE = "UTC"

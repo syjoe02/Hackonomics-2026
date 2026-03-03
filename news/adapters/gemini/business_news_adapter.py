@@ -3,6 +3,7 @@ import time
 from datetime import date
 from typing import Dict, List
 
+from babel import Locale
 from django.conf import settings
 from google import genai
 from google.genai import types
@@ -22,17 +23,30 @@ class GeminiBusinessNewsAdapter(BusinessNewsPort):
     def __init__(self):
         self.client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-    def get_country_news(self, country_code: str) -> List[Dict[str, str]]:
+    @staticmethod
+    def get_country_name(code: str) -> str:
+        try:
+            return Locale("en").territories.get(code.upper(), code)
+        except Exception:
+            return code
 
+    def get_country_news(self, country_code: str) -> List[Dict[str, str]]:
         today = date.today().strftime("%Y.%m.%d")
+        country_name = self.get_country_name(country_code)
         prompt = f"""
-        Act as a senior financial analyst. And Today's date is {today}.
+        Act as a senior financial analyst.
+
+        Today's date: {today}
 
         Summarize the MOST IMPORTANT business and market-moving
         developments from the LAST 72 HOURS affecting:
 
-        • {country_code}
+        • {country_name} (ISO country code: {country_code})
         • the global economy
+
+        IMPORTANT:
+        - "{country_code}" refers to a country code, NOT a stock ticker.
+        - Do NOT interpret it as a company symbol.
 
         REQUIREMENTS:
         - Focus ONLY on developments from the past 72 hours.
@@ -50,10 +64,10 @@ class GeminiBusinessNewsAdapter(BusinessNewsPort):
         Return ONLY a valid JSON array in this format:
 
         [
-        {{
-            "title": "...",
-            "description": "..."
-        }}
+            {{
+                "title": "...",
+                "description": "..."
+            }}
         ]
         """
 
