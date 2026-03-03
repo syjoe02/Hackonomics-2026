@@ -1,6 +1,7 @@
 import logging
 from datetime import timedelta
 
+from babel import Locale
 from django.core.cache import cache
 from django.utils import timezone
 
@@ -111,6 +112,15 @@ class BusinessNewsService:
         if not account or not account.country:
             return None
         return account.country.code
+    
+    def _get_country_name(self, code: str | None) -> str | None:
+        if not code:
+            return None
+
+        try:
+            return Locale("en").territories.get(code.upper(), code)
+        except Exception:
+            return code
 
     def _is_fresh(self, news: BusinessNews) -> bool:
         age = timezone.now() - news.created_at
@@ -121,6 +131,7 @@ class BusinessNewsService:
 
         return {
             "country_code": news.country_code,
+            "country_name": self._get_country_name(news.country_code),
             "news": news.content,
             "last_updated": news.created_at,
             "next_update": next_update,
@@ -133,6 +144,7 @@ class BusinessNewsService:
     ) -> dict:
         return {
             "country_code": country_code,
+            "country_name": self._get_country_name(country_code),
             "news": [],
             "last_updated": None,
             "next_update": None,
