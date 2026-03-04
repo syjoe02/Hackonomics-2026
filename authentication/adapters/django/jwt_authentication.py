@@ -31,19 +31,12 @@ class JWTAuthentication(BaseAuthentication):
         if any(request.path.startswith(p) for p in skip_paths):
             return None
 
-        auth_header = request.headers.get("Authorization")
+        token = request.COOKIES.get("access_token")
 
-        if not auth_header:
+        if not token:
             if settings.DEBUG:
-                print("NO AUTH HEADER")
+                print("NO ACCESS TOKEN COOKIE")
             return None
-
-        try:
-            scheme, token = auth_header.split()
-            if scheme.lower() != "bearer":
-                return None
-        except ValueError:
-            raise AuthenticationFailed("Invalid Authorization header format")
 
         service = AuthenticationService()
         payload = service.verify(token)

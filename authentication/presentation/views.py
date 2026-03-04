@@ -41,14 +41,21 @@ class LoginAPIView(GenericAPIView):
             device_id=serializer.validated_data["device_id"],
             remember_me=serializer.validated_data.get("remember_me", False),
         )
-
-        response = Response(
-            {"access_token": tokens["access_token"]}, status=status.HTTP_200_OK
-        )
-
+        
         remember_days = 30 if serializer.validated_data.get("remember_me") else 7
-
         max_age = 60 * 60 * 24 * remember_days
+
+        response = Response(status=status.HTTP_200_OK)
+
+        response.set_cookie(
+            key="access_token",
+            value=tokens["access_token"],
+            httponly=True,
+            secure=settings.IS_PRODUCTION,
+            samesite="Strict" if settings.IS_PRODUCTION else "Lax",
+            max_age=60 * 60,
+            path="/",
+        )
 
         response.set_cookie(
             key="refresh_token",
@@ -85,6 +92,17 @@ class GoogleCallbackAPIView(APIView):
         # refresh token -> stored in Cookie
         callback_url = f"{settings.FRONTEND_URL}/oauth/callback"
         response = redirect(callback_url)
+
+        response.set_cookie(
+            key="access_token",
+            value=tokens["access_token"],
+            httponly=True,
+            secure=settings.IS_PRODUCTION,
+            samesite="Strict" if settings.IS_PRODUCTION else "Lax",
+            max_age=60 * 60,
+            path="/",
+        )
+
         response.set_cookie(
             key="refresh_token",
             value=tokens["refresh_token"],
@@ -106,6 +124,15 @@ class LogoutAPIView(GenericAPIView):
         auth_service.logout(refresh_token)
 
         response = Response(status=status.HTTP_204_NO_CONTENT)
+
+        response = Response(status=status.HTTP_204_NO_CONTENT)
+
+        response.delete_cookie(
+            "access_token",
+            samesite="Strict" if settings.IS_PRODUCTION else "Lax",
+            path="/",
+        )
+
         response.delete_cookie(
             "refresh_token",
             samesite="Strict" if settings.IS_PRODUCTION else "Lax",
@@ -154,10 +181,19 @@ class RefreshAPIView(GenericAPIView):
         auth_service = AuthenticationService()
         tokens = auth_service.refresh(refresh_token)
 
-        return Response(
-            {"access_token": tokens["access_token"]},
-            status=status.HTTP_200_OK,
+        response = Response(status=status.HTTP_200_OK)
+
+        response.set_cookie(
+            key="access_token",
+            value=tokens["access_token"],
+            httponly=True,
+            secure=settings.IS_PRODUCTION,
+            samesite="Strict" if settings.IS_PRODUCTION else "Lax",
+            max_age=60 * 60,
+            path="/",
         )
+
+        return response
 
 
 class MeAPIView(GenericAPIView):

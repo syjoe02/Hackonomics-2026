@@ -179,14 +179,13 @@ LOGGING = {
 SPECTACULAR_SETTINGS = {
     "TITLE": "MyEconoCoach API",
     "VERSION": "1.0.0",
-    # JWTAuthencation
-    "SECURITY": [{"BearerAuth": []}],
+    "SECURITY": [{"CookieAuth": []}],
     "COMPONENTS": {
         "securitySchemes": {
-            "BearerAuth": {
-                "type": "http",
-                "scheme": "bearer",
-                "bearerFormat": "JWT",
+            "CookieAuth": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "access_token",
             }
         }
     },
