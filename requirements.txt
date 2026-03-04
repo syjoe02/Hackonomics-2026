@@ -27,3 +27,7 @@ types-requests
 types-python-dateutil
 pytest-json-report
 google-genai
+grpcio
+grpcio-tools
+protobuf
+babel

@@ -4,6 +4,7 @@ from accounts.application.ports.event_publisher import (
 from events.application.publishers.domain_event_publisher import (
     DomainEventPublisher as CorePublisher,
 )
+from events.domain.entities import DomainEvent
 
 
 class AccountDomainEventPublisher(AccountPort):
@@ -11,9 +12,11 @@ class AccountDomainEventPublisher(AccountPort):
         self.publisher = CorePublisher(outbox_repository)
 
     def publish(self, *, aggregate_type, aggregate_id, event_type, payload):
-        self.publisher.publish(
+        event = DomainEvent(
             aggregate_type=aggregate_type,
-            aggregate_id=aggregate_id,
+            aggregate_id=str(aggregate_id),
             event_type=event_type,
             payload=payload,
         )
+
+        self.publisher.publish(event)

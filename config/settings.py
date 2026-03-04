@@ -12,9 +12,9 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 import sys
 from pathlib import Path
-from celery.schedules import crontab
 
 import environ
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -103,6 +103,15 @@ ACCOUNT_SIGNUP_FIELDS = [
 ]
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
+# Gemini
+GEMINI_API_KEY = env("GEMINI_API_KEY")
+
+# LLM
+LLM_SERVICE_URL = env(
+    "LLM_SERVICE_URL",
+    default="http://localhost:8001/chat/stream",
+)
+
 # Google
 GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET")
@@ -118,8 +127,15 @@ GOOGLE_CALENDAR_REDIRECT_URI = env(
 # Redis & Celery
 REDIS_URL = env("REDIS_URL", default="redis://localhost:6380/0")
 
-CELERY_BROKER_URL = "redis://redis:6380/0"
-CELERY_RESULT_BACKEND = "redis://redis:6380/0"
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": REDIS_URL,
+    }
+}
+
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_TIMEZONE = "UTC"
 CELERY_ENABLE_UTC = True
 
@@ -129,9 +145,6 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(hour="*/6", minute=0),
     },
 }
-
-# Gemini
-GEMINI_API_KEY = env("GEMINI_API_KEY")
 
 if DEBUG:
     EXCEPTION_HANDLER = "rest_framework.views.exception_handler"
@@ -148,17 +161,31 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": EXCEPTION_HANDLER,
 }
 
+# Logging
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}
+
 SPECTACULAR_SETTINGS = {
     "TITLE": "MyEconoCoach API",
     "VERSION": "1.0.0",
-    # JWTAuthencation
-    "SECURITY": [{"BearerAuth": []}],
+    "SECURITY": [{"CookieAuth": []}],
     "COMPONENTS": {
         "securitySchemes": {
-            "BearerAuth": {
-                "type": "http",
-                "scheme": "bearer",
-                "bearerFormat": "JWT",
+            "CookieAuth": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "access_token",
             }
         }
     },
