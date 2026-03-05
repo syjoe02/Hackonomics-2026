@@ -82,14 +82,19 @@ class ChatStreamView(APIView):
         )
 
         def event_stream():
-            for chunk in response.iter_content(
-                chunk_size=None,
-                decode_unicode=True,
-            ):
-                if chunk:
-                    yield chunk
+            try:
+                for line in response.iter_lines(decode_unicode=True):
+                    if line:
+                        yield f"{line}\n"
+            finally:
+                response.close()
 
         return StreamingHttpResponse(
             event_stream(),
             content_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
         )
